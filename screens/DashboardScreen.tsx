@@ -152,11 +152,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: fontSize.xl,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   period: {
     fontSize: fontSize.sm,
-    color: colors.primary,
+    color: colors.primary[500],
     fontWeight: '600',
   },
   section: {
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: fontSize.md,
     fontWeight: '600',
-    color: colors.gray[700],
+    color: colors.neutral[700],
     marginBottom: spacing.md,
   },
   statsGrid: {
@@ -178,24 +178,24 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.gray[50],
+    backgroundColor: colors.neutral[50],
     padding: spacing.md,
     borderRadius: borderRadius.md,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: fontSize.xxl,
+    fontSize: fontSize['2xl'],
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   statUnit: {
     fontSize: fontSize.sm,
     fontWeight: 'normal',
-    color: colors.gray[500],
+    color: colors.neutral[500],
   },
   statLabel: {
     fontSize: fontSize.xs,
-    color: colors.gray[500],
+    color: colors.neutral[500],
     marginTop: spacing.xs,
   },
   categoryContainer: {
@@ -209,12 +209,12 @@ const styles = StyleSheet.create({
   categoryLabel: {
     width: 60,
     fontSize: fontSize.sm,
-    color: colors.gray[600],
+    color: colors.neutral[600],
   },
   barContainer: {
     flex: 1,
     height: 16,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.full,
     overflow: 'hidden',
   },
@@ -225,23 +225,23 @@ const styles = StyleSheet.create({
   categoryPercentage: {
     width: 40,
     fontSize: fontSize.sm,
-    color: colors.gray[600],
+    color: colors.neutral[600],
     textAlign: 'right',
   },
   heatmapPlaceholder: {
     height: 200,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: fontSize.md,
-    color: colors.gray[500],
+    color: colors.neutral[500],
   },
   placeholderSubtext: {
     fontSize: fontSize.sm,
-    color: colors.gray[400],
+    color: colors.neutral[400],
     marginTop: spacing.xs,
   },
 })

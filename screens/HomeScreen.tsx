@@ -199,16 +199,16 @@ const styles = StyleSheet.create({
   date: {
     fontSize: fontSize.xl,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   subtitle: {
     fontSize: fontSize.md,
-    color: colors.gray[500],
+    color: colors.neutral[500],
     marginTop: spacing.xs,
   },
   mapPlaceholder: {
     height: 200,
-    backgroundColor: colors.gray[200],
+    backgroundColor: colors.neutral[200],
     margin: spacing.md,
     borderRadius: borderRadius.lg,
     justifyContent: 'center',
@@ -216,11 +216,11 @@ const styles = StyleSheet.create({
   },
   mapPlaceholderText: {
     fontSize: fontSize.lg,
-    color: colors.gray[500],
+    color: colors.neutral[500],
   },
   mapPlaceholderSubtext: {
     fontSize: fontSize.sm,
-    color: colors.gray[400],
+    color: colors.neutral[400],
     marginTop: spacing.xs,
   },
   scheduleList: {
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   time: {
     fontSize: fontSize.lg,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   poiTypeBadge: {
     paddingHorizontal: spacing.sm,
@@ -265,12 +265,12 @@ const styles = StyleSheet.create({
   },
   exposure: {
     fontSize: fontSize.sm,
-    color: colors.primary,
+    color: colors.primary[500],
     fontWeight: '600',
   },
   poiName: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
     marginBottom: spacing.md,
   },
   actions: {
@@ -284,17 +284,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary[500],
   },
   primaryButtonText: {
     color: colors.white,
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
   },
   secondaryButtonText: {
-    color: colors.gray[700],
+    color: colors.neutral[700],
     fontWeight: '600',
   },
   addButton: {
@@ -303,12 +303,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.gray[300],
+    borderColor: colors.neutral[300],
     borderStyle: 'dashed',
     alignItems: 'center',
   },
   addButtonText: {
-    color: colors.gray[500],
+    color: colors.neutral[500],
     fontSize: fontSize.md,
   },
 })

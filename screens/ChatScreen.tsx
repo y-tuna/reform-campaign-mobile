@@ -131,7 +131,7 @@ export default function ChatScreen() {
             value={inputText}
             onChangeText={setInputText}
             placeholder="질문을 입력하세요..."
-            placeholderTextColor={colors.gray[400]}
+            placeholderTextColor={colors.neutral[400]}
             multiline
             maxLength={500}
           />
@@ -163,12 +163,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[200],
+    borderBottomColor: colors.neutral[200],
   },
   title: {
     fontSize: fontSize.lg,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   messageList: {
     flex: 1,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
   },
   userContent: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary[500],
     borderBottomRightRadius: borderRadius.sm,
   },
   assistantContent: {
@@ -215,17 +215,17 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   assistantText: {
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   sourcesContainer: {
     marginTop: spacing.md,
     paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.gray[200],
+    borderTopColor: colors.neutral[200],
   },
   sourcesLabel: {
     fontSize: fontSize.sm,
-    color: colors.gray[500],
+    color: colors.neutral[500],
     marginBottom: spacing.xs,
   },
   sourceLink: {
@@ -233,18 +233,18 @@ const styles = StyleSheet.create({
   },
   sourceLinkText: {
     fontSize: fontSize.sm,
-    color: colors.primary,
+    color: colors.primary[500],
   },
   detailButton: {
     marginTop: spacing.sm,
     padding: spacing.sm,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.md,
     alignItems: 'center',
   },
   detailButtonText: {
     fontSize: fontSize.sm,
-    color: colors.primary,
+    color: colors.primary[500],
     fontWeight: '600',
   },
   inputContainer: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: colors.gray[200],
+    borderTopColor: colors.neutral[200],
     gap: spacing.sm,
     alignItems: 'flex-end',
   },
@@ -262,21 +262,21 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     padding: spacing.sm,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.lg,
     fontSize: fontSize.md,
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   sendButton: {
     width: 44,
     height: 44,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary[500],
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: colors.gray[300],
+    backgroundColor: colors.neutral[300],
   },
   sendButtonText: {
     color: colors.white,

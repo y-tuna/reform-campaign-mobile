@@ -147,12 +147,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[200],
+    borderBottomColor: colors.neutral[200],
   },
   headerTitle: {
     fontSize: fontSize.xl,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   scrollView: {
     flex: 1,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.gray[500],
+    color: colors.neutral[500],
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
   },
@@ -172,11 +172,11 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
+    borderBottomColor: colors.neutral[100],
     gap: spacing.sm,
   },
   unread: {
-    backgroundColor: colors.gray[50],
+    backgroundColor: colors.neutral[50],
   },
   icon: {
     fontSize: 20,
@@ -194,16 +194,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: fontSize.md,
     fontWeight: '600',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   time: {
     fontSize: fontSize.xs,
-    color: colors.gray[400],
+    color: colors.neutral[400],
     marginLeft: spacing.sm,
   },
   body: {
     fontSize: fontSize.sm,
-    color: colors.gray[600],
+    color: colors.neutral[600],
     lineHeight: 20,
   },
 })

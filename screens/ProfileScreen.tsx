@@ -142,7 +142,7 @@ export default function ProfileScreen() {
             <Switch
               value={largeFont}
               onValueChange={setLargeFont}
-              trackColor={{ false: colors.gray[300], true: colors.primary }}
+              trackColor={{ false: colors.neutral[300], true: colors.primary[500] }}
             />
           </View>
 
@@ -151,7 +151,7 @@ export default function ProfileScreen() {
             <Switch
               value={darkMode}
               onValueChange={setDarkMode}
-              trackColor={{ false: colors.gray[300], true: colors.primary }}
+              trackColor={{ false: colors.neutral[300], true: colors.primary[500] }}
             />
           </View>
         </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.gray[200],
+    backgroundColor: colors.neutral[200],
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.md,
@@ -204,11 +204,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: fontSize.xl,
     fontWeight: 'bold',
-    color: colors.gray[800],
+    color: colors.neutral[800],
   },
   district: {
     fontSize: fontSize.md,
-    color: colors.gray[500],
+    color: colors.neutral[500],
     marginTop: spacing.xs,
   },
   section: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.gray[500],
+    color: colors.neutral[500],
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -227,11 +227,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
+    borderBottomColor: colors.neutral[100],
   },
   settingLabel: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
     marginBottom: spacing.sm,
   },
   dropdown: {
@@ -239,16 +239,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.sm,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.md,
   },
   dropdownText: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
   },
   dropdownArrow: {
     fontSize: fontSize.xs,
-    color: colors.gray[500],
+    color: colors.neutral[500],
   },
   optionGroup: {
     flexDirection: 'row',
@@ -258,16 +258,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.md,
     alignItems: 'center',
   },
   optionButtonSelected: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary[500],
   },
   optionButtonText: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
   },
   optionButtonTextSelected: {
     color: colors.white,
@@ -280,11 +280,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
+    borderBottomColor: colors.neutral[100],
   },
   toggleLabel: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
   },
   menuItem: {
     flexDirection: 'row',
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
+    borderBottomColor: colors.neutral[100],
     gap: spacing.sm,
   },
   menuIcon: {
@@ -300,13 +300,13 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: fontSize.md,
-    color: colors.gray[700],
+    color: colors.neutral[700],
   },
   logoutItem: {
     borderBottomWidth: 0,
   },
   logoutText: {
     fontSize: fontSize.md,
-    color: colors.error,
+    color: colors.error[500],
   },
 })
