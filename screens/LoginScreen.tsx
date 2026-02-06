@@ -115,16 +115,14 @@ export default function LoginScreen({ onLogin, onNavigateToOnboarding }: LoginSc
             </TouchableOpacity>
           </View>
 
-          {/* Test Account Info (Dev Mode) */}
-          {__DEV__ && (
-            <View style={styles.devInfo}>
-              <Text style={styles.devTitle}>테스트 계정</Text>
-              <TouchableOpacity onPress={handleTestLogin}>
-                <Text style={styles.devText}>test@reform.party / test1234</Text>
-              </TouchableOpacity>
-              <Text style={styles.devHint}>탭하여 자동 입력</Text>
-            </View>
-          )}
+          {/* Test Account Info */}
+          <View style={styles.devInfo}>
+            <Text style={styles.devTitle}>테스트 계정</Text>
+            <TouchableOpacity onPress={handleTestLogin}>
+              <Text style={styles.devText}>test@reform.party / test1234</Text>
+            </TouchableOpacity>
+            <Text style={styles.devHint}>탭하여 자동 입력</Text>
+          </View>
 
           {/* Footer */}
           <View style={styles.footer}>

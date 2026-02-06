@@ -299,15 +299,27 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryTitle}>설정 요약</Text>
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>스케줄 강도</Text>
-                  <Text style={styles.summaryValue}>
-                    {intensityOptions.find((o) => o.value === intensity)?.label}
-                  </Text>
+                  <Text style={styles.summaryLabel}>이름</Text>
+                  <Text style={styles.summaryValue}>홍길동</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>지역구</Text>
+                  <Text style={styles.summaryValue}>서울특별시 강남구 가</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>직책</Text>
+                  <Text style={styles.summaryValue}>기초의원</Text>
                 </View>
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>이동 수단</Text>
                   <Text style={styles.summaryValue}>
                     {mobilityOptions.find((o) => o.value === mobility)?.label}
+                  </Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>스케줄 강도</Text>
+                  <Text style={styles.summaryValue}>
+                    {intensityOptions.find((o) => o.value === intensity)?.label}
                   </Text>
                 </View>
                 {isSeniorMode && (
