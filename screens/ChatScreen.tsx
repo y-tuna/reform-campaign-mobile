@@ -8,62 +8,114 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { ChatMessage } from '../types'
+import { BotIcon, UserIcon, KeyboardIcon } from '../components/icons'
 
 // Mock 대화
 const initialMessages: ChatMessage[] = [
   {
     id: '1',
     role: 'assistant',
-    content:
-      '안녕하세요! 선거법에 관해 궁금한 점을 물어보세요. 공직선거법, 선관위 지침 등에 대해 답변해 드릴 수 있습니다.',
+    content: '안녕하세요! AI 어시스턴트입니다. 무엇을 도와 드릴까요?',
     createdAt: new Date().toISOString(),
   },
 ]
 
+// 자주 묻는 질문
+const faqQuestions = [
+  'SNS로 선거운동을 할 수 있나요?',
+  '선거사무소는 몇 개까지 설치할 수 있나요?',
+  '공무원도 선거운동을 할 수 있나요?',
+  '예비후보자가 할 수 있는 홍보활동은?',
+  '선거 관련 집회를 개최할 수 있나요?',
+]
+
+const ReformLogo = require('../assets/reform-party-logo.png')
+
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user'
+  const time = new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
 
   return (
-    <View
-      style={[
-        styles.messageBubble,
-        isUser ? styles.userBubble : styles.assistantBubble,
-      ]}
-    >
-      {!isUser && <Text style={styles.botIcon}>🤖</Text>}
+    <View style={styles.messageWrapper}>
       <View
         style={[
-          styles.bubbleContent,
-          isUser ? styles.userContent : styles.assistantContent,
+          styles.messageBubble,
+          isUser ? styles.userBubble : styles.assistantBubble,
         ]}
       >
-        <Text
+        <View
           style={[
-            styles.messageText,
-            isUser ? styles.userText : styles.assistantText,
+            styles.bubbleContent,
+            isUser ? styles.userContent : styles.assistantContent,
           ]}
         >
-          {message.content}
-        </Text>
-        {message.sources && message.sources.length > 0 && (
-          <View style={styles.sourcesContainer}>
-            <Text style={styles.sourcesLabel}>관련 조항:</Text>
-            {message.sources.map((source, index) => (
-              <TouchableOpacity key={index} style={styles.sourceLink}>
-                <Text style={styles.sourceLinkText}>• {source.code}</Text>
+          <Text
+            style={[
+              styles.messageText,
+              isUser ? styles.userText : styles.assistantText,
+            ]}
+          >
+            {message.content}
+          </Text>
+          {message.sources && message.sources.length > 0 && (
+            <View style={styles.sourcesContainer}>
+              <Text style={styles.sourcesLabel}>관련 조항:</Text>
+              {message.sources.map((source, index) => (
+                <TouchableOpacity key={index} style={styles.sourceLink}>
+                  <Text style={styles.sourceLinkText}>• {source.code}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity style={styles.detailButton}>
+                <Text style={styles.detailButtonText}>자세히 보기</Text>
               </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={styles.detailButton}>
-              <Text style={styles.detailButtonText}>자세히 보기</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+            </View>
+          )}
+        </View>
       </View>
-      {isUser && <Text style={styles.userIcon}>👤</Text>}
+      {!isUser && (
+        <View style={styles.botInfoRow}>
+          <Image source={ReformLogo} style={styles.botLogo} resizeMode="contain" />
+          <Text style={styles.messageTime}>{time}</Text>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function FAQSection({ onSelectQuestion }: { onSelectQuestion: (q: string) => void }) {
+  const [isExpanded, setIsExpanded] = useState(true)
+
+  return (
+    <View style={styles.faqContainer}>
+      <TouchableOpacity
+        style={styles.faqHeader}
+        onPress={() => setIsExpanded(!isExpanded)}
+      >
+        <Text style={styles.faqTitle}>자주 묻는 질문</Text>
+        <Text style={styles.faqToggle}>{isExpanded ? '∧' : '∨'}</Text>
+      </TouchableOpacity>
+      {isExpanded && (
+        <View style={styles.faqList}>
+          {faqQuestions.map((question, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.faqItem}
+              onPress={() => onSelectQuestion(question)}
+            >
+              <Text style={styles.faqQuestion}>{question}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   )
 }
@@ -72,13 +124,14 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [inputText, setInputText] = useState('')
 
-  const handleSend = () => {
-    if (!inputText.trim()) return
+  const handleSend = (text?: string) => {
+    const messageText = text || inputText.trim()
+    if (!messageText) return
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputText.trim(),
+      content: messageText,
       createdAt: new Date().toISOString(),
     }
 
@@ -105,6 +158,10 @@ export default function ChatScreen() {
     }, 1000)
   }
 
+  const handleFAQSelect = (question: string) => {
+    handleSend(question)
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <KeyboardAvoidingView
@@ -113,7 +170,7 @@ export default function ChatScreen() {
         keyboardVerticalOffset={90}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>선거법 도우미</Text>
+          <Text style={styles.title}>AI 챗봇</Text>
         </View>
 
         <ScrollView
@@ -123,27 +180,32 @@ export default function ChatScreen() {
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
+
+          <FAQSection onSelectQuestion={handleFAQSelect} />
         </ScrollView>
 
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="질문을 입력하세요..."
-            placeholderTextColor={colors.neutral[400]}
-            multiline
-            maxLength={500}
-          />
+          <View style={styles.inputWrapper}>
+            <KeyboardIcon size={20} color={colors.neutral[400]} />
+            <TextInput
+              style={styles.input}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholder="궁금한 것을 물어보세요."
+              placeholderTextColor={colors.neutral[400]}
+              multiline
+              maxLength={500}
+            />
+          </View>
           <TouchableOpacity
             style={[
               styles.sendButton,
               !inputText.trim() && styles.sendButtonDisabled,
             ]}
-            onPress={handleSend}
+            onPress={() => handleSend()}
             disabled={!inputText.trim()}
           >
-            <Text style={styles.sendButtonText}>▶</Text>
+            <Text style={styles.sendButtonText}>전송</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -164,6 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral[200],
+    alignItems: 'center',
   },
   title: {
     fontSize: fontSize.lg,
@@ -177,6 +240,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
   },
+  messageWrapper: {
+    marginBottom: spacing.sm,
+  },
   messageBubble: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -188,14 +254,22 @@ const styles = StyleSheet.create({
   assistantBubble: {
     justifyContent: 'flex-start',
   },
-  botIcon: {
-    fontSize: 24,
+  botInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    gap: spacing.sm,
   },
-  userIcon: {
-    fontSize: 24,
+  botLogo: {
+    width: 24,
+    height: 24,
+  },
+  messageTime: {
+    fontSize: fontSize.xs,
+    color: colors.neutral[400],
   },
   bubbleContent: {
-    maxWidth: '75%',
+    maxWidth: '85%',
     padding: spacing.md,
     borderRadius: borderRadius.lg,
   },
@@ -204,7 +278,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: borderRadius.sm,
   },
   assistantContent: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.neutral[100],
     borderBottomLeftRadius: borderRadius.sm,
   },
   messageText: {
@@ -238,7 +312,7 @@ const styles = StyleSheet.create({
   detailButton: {
     marginTop: spacing.sm,
     padding: spacing.sm,
-    backgroundColor: colors.neutral[100],
+    backgroundColor: colors.white,
     borderRadius: borderRadius.md,
     alignItems: 'center',
   },
@@ -247,6 +321,43 @@ const styles = StyleSheet.create({
     color: colors.primary[500],
     fontWeight: '600',
   },
+  // FAQ 스타일
+  faqContainer: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginTop: spacing.md,
+  },
+  faqHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  faqTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.neutral[700],
+  },
+  faqToggle: {
+    fontSize: fontSize.md,
+    color: colors.neutral[400],
+  },
+  faqList: {
+    gap: spacing.sm,
+  },
+  faqItem: {
+    padding: spacing.md,
+    backgroundColor: colors.neutral[50],
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+  },
+  faqQuestion: {
+    fontSize: fontSize.md,
+    color: colors.neutral[700],
+  },
+  // 입력창 스타일
   inputContainer: {
     flexDirection: 'row',
     padding: spacing.md,
@@ -254,32 +365,38 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.neutral[200],
     gap: spacing.sm,
-    alignItems: 'flex-end',
+    alignItems: 'center',
+  },
+  inputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
   },
   input: {
     flex: 1,
     minHeight: 44,
     maxHeight: 100,
-    padding: spacing.sm,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.neutral[100],
-    borderRadius: borderRadius.lg,
     fontSize: fontSize.md,
     color: colors.neutral[800],
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: colors.primary[500],
-    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.md,
+    height: 36,
+    backgroundColor: colors.neutral[200],
+    borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: colors.neutral[300],
+    backgroundColor: colors.neutral[200],
   },
   sendButtonText: {
-    color: colors.white,
-    fontSize: fontSize.lg,
+    color: colors.neutral[500],
+    fontSize: fontSize.sm,
+    fontWeight: '500',
   },
 })

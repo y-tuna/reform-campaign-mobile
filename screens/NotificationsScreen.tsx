@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { Notification } from '../types'
+import { AlertIcon, CalendarIcon, AnnouncementIcon } from '../components/icons'
 
 // Mock 데이터
 const mockNotifications: Notification[] = [
@@ -59,10 +60,10 @@ function getTimeAgo(dateString: string): string {
   return `${days}일 전`
 }
 
-function getNotificationIcon(type: Notification['type'], severity: Notification['severity']): string {
-  if (severity === 'critical') return '🔴'
-  if (type === 'schedule_reminder') return '📅'
-  return '📢'
+function getNotificationIcon(type: Notification['type'], severity: Notification['severity']) {
+  if (severity === 'critical') return <AlertIcon size={20} color={colors.error[500]} />
+  if (type === 'schedule_reminder') return <CalendarIcon size={20} color={colors.primary[500]} />
+  return <AnnouncementIcon size={20} color={colors.neutral[500]} />
 }
 
 function NotificationItem({ notification }: { notification: Notification }) {
@@ -76,7 +77,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
         !notification.isRead && styles.unread,
       ]}
     >
-      <Text style={styles.icon}>{icon}</Text>
+      <View style={styles.iconContainer}>{icon}</View>
       <View style={styles.content}>
         <View style={styles.titleRow}>
           <Text
@@ -178,8 +179,13 @@ const styles = StyleSheet.create({
   unread: {
     backgroundColor: colors.neutral[50],
   },
-  icon: {
-    fontSize: 20,
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.neutral[100],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     flex: 1,

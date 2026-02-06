@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Text, View, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 
 import {
   HomeScreen,
@@ -19,19 +19,17 @@ import {
   OnboardingScreen,
 } from './screens'
 import { colors } from './constants/theme'
+import { useManualScheduleStore } from './stores'
+import {
+  HomeIcon,
+  DashboardIcon,
+  ChatIcon,
+  NotificationIcon,
+  ProfileIcon,
+} from './components/icons'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
-
-function TabIcon({ icon, focused }: { icon: string; focused: boolean }) {
-  return (
-    <View style={styles.tabIconContainer}>
-      <Text style={[styles.tabIcon, focused && styles.tabIconFocused]}>
-        {icon}
-      </Text>
-    </View>
-  )
-}
 
 function MainTabs() {
   return (
@@ -50,7 +48,7 @@ function MainTabs() {
         options={{
           tabBarLabel: '홈',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🏠" focused={focused} />
+            <HomeIcon size={24} focused={focused} />
           ),
         }}
       />
@@ -60,7 +58,7 @@ function MainTabs() {
         options={{
           tabBarLabel: '대시보드',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="📊" focused={focused} />
+            <DashboardIcon size={24} focused={focused} />
           ),
         }}
       />
@@ -70,7 +68,7 @@ function MainTabs() {
         options={{
           tabBarLabel: '챗봇',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="💬" focused={focused} />
+            <ChatIcon size={24} focused={focused} />
           ),
         }}
       />
@@ -80,7 +78,7 @@ function MainTabs() {
         options={{
           tabBarLabel: '알림',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🔔" focused={focused} />
+            <NotificationIcon size={24} focused={focused} />
           ),
         }}
       />
@@ -90,7 +88,7 @@ function MainTabs() {
         options={{
           tabBarLabel: '프로필',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="👤" focused={focused} />
+            <ProfileIcon size={24} focused={focused} />
           ),
         }}
       />
@@ -103,6 +101,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false)
 
+  // Manual schedule store for clearing on logout
+  const clearAllSchedules = useManualScheduleStore((state) => state.clearAllSchedules)
+
   const handleLogin = () => {
     setIsAuthenticated(true)
   }
@@ -112,6 +113,7 @@ export default function App() {
   }
 
   const handleLogout = () => {
+    clearAllSchedules() // 로그아웃 시 수동 일정 초기화
     setIsAuthenticated(false)
     setHasCompletedOnboarding(false)
   }
@@ -157,26 +159,16 @@ export default function App() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 60,
-    paddingBottom: 8,
-    paddingTop: 8,
+    height: 80,
+    paddingBottom: 16,
+    paddingTop: 12,
     backgroundColor: colors.white,
     borderTopWidth: 1,
     borderTopColor: colors.neutral[200],
   },
   tabBarLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
-  },
-  tabIconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabIcon: {
-    fontSize: 22,
-    opacity: 0.5,
-  },
-  tabIconFocused: {
-    opacity: 1,
+    marginTop: 4,
   },
 })

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
@@ -16,7 +15,7 @@ import { MobilityType, IntensityLevel } from '../types'
 
 const ReformLogo = require('../assets/reform-party-logo.png')
 
-const STEPS = ['기본 정보', '캠페인 설정', 'UI 설정', '완료']
+const STEPS = ['캠페인 설정', 'UI 설정', '완료']
 
 interface OnboardingScreenProps {
   onComplete: () => void
@@ -33,7 +32,7 @@ const mobilityOptions: { value: MobilityType; label: string; icon: string }[] = 
 const intensityOptions: { value: IntensityLevel; label: string; description: string }[] = [
   { value: 'light', label: '여유', description: '하루 2-3곳' },
   { value: 'normal', label: '보통', description: '하루 4-5곳' },
-  { value: 'hard', label: '빡셈', description: '하루 6곳 이상' },
+  { value: 'hard', label: '바쁨', description: '하루 6곳 이상' },
 ]
 
 const religionOptions = [
@@ -89,16 +88,12 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Step 1: Basic Info
-  const [name, setName] = useState('')
-  const [district, setDistrict] = useState('')
-
-  // Step 2: Campaign Settings
+  // Step 1: Campaign Settings
   const [intensity, setIntensity] = useState<IntensityLevel>('normal')
   const [mobility, setMobility] = useState<MobilityType>('car')
   const [religionExclude, setReligionExclude] = useState('none')
 
-  // Step 3: UI Settings
+  // Step 2: UI Settings
   const [fontScale, setFontScale] = useState(1.0)
 
   const isSeniorMode = fontScale >= 1.2
@@ -130,12 +125,9 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
 
   const canProceed = () => {
     switch (currentStep) {
-      case 0:
-        return name.trim().length > 0 && district.trim().length > 0
-      case 1:
-      case 2:
-        return true
-      case 3:
+      case 0: // Campaign Settings
+      case 1: // UI Settings
+      case 2: // Complete
         return true
       default:
         return false
@@ -145,38 +137,6 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>기본 정보</Text>
-            <Text style={styles.stepDescription}>
-              캠페인 관리를 위한 기본 정보를 입력해주세요
-            </Text>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>이름</Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="이름을 입력하세요"
-                placeholderTextColor={colors.neutral[400]}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>지역구</Text>
-              <TextInput
-                style={styles.input}
-                value={district}
-                onChangeText={setDistrict}
-                placeholder="예: 서울 강남구 갑"
-                placeholderTextColor={colors.neutral[400]}
-              />
-            </View>
-          </View>
-        )
-
-      case 1:
         return (
           <View style={styles.stepContent}>
             <Text style={styles.stepTitle}>캠페인 설정</Text>
@@ -279,7 +239,7 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
           </View>
         )
 
-      case 2:
+      case 1:
         return (
           <View style={styles.stepContent}>
             <Text style={styles.stepTitle}>UI 설정</Text>
@@ -325,7 +285,7 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
           </View>
         )
 
-      case 3:
+      case 2:
         return (
           <View style={styles.stepContent}>
             <View style={styles.completeContainer}>
@@ -338,14 +298,6 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
 
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryTitle}>설정 요약</Text>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>이름</Text>
-                  <Text style={styles.summaryValue}>{name}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>지역구</Text>
-                  <Text style={styles.summaryValue}>{district}</Text>
-                </View>
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>스케줄 강도</Text>
                   <Text style={styles.summaryValue}>
@@ -481,25 +433,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: colors.neutral[500],
     marginBottom: spacing.xl,
-  },
-  inputGroup: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.neutral[700],
-    marginBottom: spacing.xs,
-  },
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: colors.neutral[300],
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.md,
-    color: colors.neutral[800],
-    backgroundColor: colors.white,
   },
   settingSection: {
     marginBottom: spacing.lg,
