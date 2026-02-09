@@ -384,7 +384,7 @@ function AddScheduleModal({
                 style={addModalStyles.input}
                 value={title}
                 onChangeText={setTitle}
-                placeholder="수동 일정 예시"
+                placeholder="수동 일정"
                 placeholderTextColor={colors.neutral[400]}
               />
             </View>
