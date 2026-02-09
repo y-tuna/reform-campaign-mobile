@@ -8,26 +8,50 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native'
-import Slider from '@react-native-community/slider'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { MobilityType, IntensityLevel } from '../types'
+import {
+  CarIcon,
+  PickupIcon,
+  BikeIcon,
+  ScooterIcon,
+  WalkIcon,
+} from '../components/icons'
+import { useSettingsStore } from '../stores'
 
 const ReformLogo = require('../assets/reform-party-logo.png')
 
-const STEPS = ['캠페인 설정', 'UI 설정', '완료']
+const STEPS = ['캠페인 설정', '화면 설정', '완료']
 
 interface OnboardingScreenProps {
   onComplete: () => void
   onBack?: () => void
 }
 
-const mobilityOptions: { value: MobilityType; label: string; icon: string }[] = [
-  { value: 'walk', label: '도보', icon: '🚶' },
-  { value: 'bike', label: '자전거', icon: '🚴' },
-  { value: 'car', label: '자차', icon: '🚗' },
-  { value: 'pickup', label: '픽업', icon: '🛻' },
+const mobilityOptions: { value: MobilityType; label: string }[] = [
+  { value: 'walk', label: '도보' },
+  { value: 'bike', label: '자전거' },
+  { value: 'scooter', label: '스쿠터' },
+  { value: 'car', label: '승용차' },
+  { value: 'pickup', label: '트럭' },
 ]
+
+function getMobilityIcon(value: MobilityType, selected: boolean) {
+  const color = selected ? colors.primary[700] : colors.neutral[500]
+  switch (value) {
+    case 'car':
+      return <CarIcon size={24} color={color} />
+    case 'pickup':
+      return <PickupIcon size={24} color={color} />
+    case 'scooter':
+      return <ScooterIcon size={24} color={color} />
+    case 'bike':
+      return <BikeIcon size={24} color={color} />
+    case 'walk':
+      return <WalkIcon size={24} color={color} />
+  }
+}
 
 const intensityOptions: { value: IntensityLevel; label: string; description: string }[] = [
   { value: 'light', label: '여유', description: '하루 2-3곳' },
@@ -90,11 +114,13 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
 
   // Step 1: Campaign Settings
   const [intensity, setIntensity] = useState<IntensityLevel>('normal')
-  const [mobility, setMobility] = useState<MobilityType>('car')
   const [religionExclude, setReligionExclude] = useState('none')
 
-  // Step 2: UI Settings
-  const [fontScale, setFontScale] = useState(1.0)
+  // Settings store - UI 및 이동수단 설정
+  const fontScale = useSettingsStore((state) => state.fontScale)
+  const setFontScale = useSettingsStore((state) => state.setFontScale)
+  const mobility = useSettingsStore((state) => state.mobility)
+  const setMobility = useSettingsStore((state) => state.setMobility)
 
   const isSeniorMode = fontScale >= 1.2
 
@@ -187,7 +213,7 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
                     onPress={() => setMobility(option.value)}
                     style={styles.mobilityButton}
                   >
-                    <Text style={styles.mobilityIcon}>{option.icon}</Text>
+                    {getMobilityIcon(option.value, mobility === option.value)}
                     <Text
                       style={[
                         styles.mobilityLabel,
@@ -242,7 +268,7 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
       case 1:
         return (
           <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>UI 설정</Text>
+            <Text style={styles.stepTitle}>화면 설정</Text>
             <Text style={styles.stepDescription}>
               편안한 사용을 위한 화면 설정입니다
             </Text>
@@ -252,25 +278,45 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
                 <Text style={styles.settingLabel}>글씨 크기</Text>
                 {isSeniorMode && (
                   <View style={styles.seniorBadge}>
-                    <Text style={styles.seniorBadgeText}>시니어 모드</Text>
+                    <Text style={styles.seniorBadgeText}>큰 글씨 모드</Text>
                   </View>
                 )}
               </View>
 
-              <View style={styles.sliderContainer}>
-                <Text style={styles.sliderLabel}>작게</Text>
-                <Slider
-                  style={styles.slider}
-                  minimumValue={0.8}
-                  maximumValue={1.4}
-                  step={0.1}
-                  value={fontScale}
-                  onValueChange={setFontScale}
-                  minimumTrackTintColor={colors.primary[500]}
-                  maximumTrackTintColor={colors.neutral[200]}
-                  thumbTintColor={colors.primary[500]}
-                />
-                <Text style={styles.sliderLabel}>크게</Text>
+              <View style={styles.fontScaleButtons}>
+                {[
+                  { value: 0.85, label: 'A', size: 12, desc: '작게' },
+                  { value: 1.0, label: 'A', size: 16, desc: '보통' },
+                  { value: 1.2, label: 'A', size: 20, desc: '크게' },
+                  { value: 1.4, label: 'A', size: 24, desc: '매우 크게' },
+                ].map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.fontScaleButton,
+                      fontScale === option.value && styles.fontScaleButtonActive,
+                    ]}
+                    onPress={() => setFontScale(option.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.fontScaleButtonText,
+                        { fontSize: option.size },
+                        fontScale === option.value && styles.fontScaleButtonTextActive,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.fontScaleDesc,
+                        fontScale === option.value && styles.fontScaleDescActive,
+                      ]}
+                    >
+                      {option.desc}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
 
               <View style={styles.fontPreview}>
@@ -324,7 +370,7 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
                 </View>
                 {isSeniorMode && (
                   <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>시니어 모드</Text>
+                    <Text style={styles.summaryLabel}>큰 글씨 모드</Text>
                     <Text style={styles.summaryValue}>활성화</Text>
                   </View>
                 )}
@@ -483,10 +529,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.md,
     alignItems: 'center',
-  },
-  mobilityIcon: {
-    fontSize: 24,
-    marginBottom: spacing.xs,
+    gap: spacing.xs,
   },
   mobilityLabel: {
     fontSize: fontSize.sm,
@@ -566,18 +609,38 @@ const styles = StyleSheet.create({
     color: colors.success[700],
     fontWeight: '600',
   },
-  sliderContainer: {
+  fontScaleButtons: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: spacing.sm,
   },
-  slider: {
+  fontScaleButton: {
     flex: 1,
-    height: 40,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  sliderLabel: {
-    fontSize: fontSize.sm,
+  fontScaleButtonActive: {
+    backgroundColor: colors.primary[50],
+    borderColor: colors.primary[500],
+  },
+  fontScaleButtonText: {
+    color: colors.neutral[600],
+    fontWeight: '600',
+  },
+  fontScaleButtonTextActive: {
+    color: colors.primary[600],
+  },
+  fontScaleDesc: {
+    fontSize: fontSize.xs,
     color: colors.neutral[500],
+    marginTop: spacing.xs,
+  },
+  fontScaleDescActive: {
+    color: colors.primary[600],
   },
   fontPreview: {
     marginTop: spacing.md,

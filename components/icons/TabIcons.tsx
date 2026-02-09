@@ -432,6 +432,21 @@ export function BikeIcon({ size = 24, color = INACTIVE_GRAY, focused }: IconProp
   )
 }
 
+// 스쿠터/오토바이 아이콘
+export function ScooterIcon({ size = 24, color = INACTIVE_GRAY, focused }: IconProps) {
+  const strokeColor = focused ? ACTIVE_ORANGE : color
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="5" cy="17" r="3" stroke={strokeColor} strokeWidth={1.5} />
+      <Circle cx="19" cy="17" r="3" stroke={strokeColor} strokeWidth={1.5} />
+      <Path d="M5 17H8L10 12H14" stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M14 12V8C14 7 14.5 6 16 6H18" stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M14 12L16 17H19" stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M10 12L8 8" stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  )
+}
+
 // 도보 아이콘
 export function WalkIcon({ size = 24, color = INACTIVE_GRAY, focused }: IconProps) {
   const strokeColor = focused ? ACTIVE_ORANGE : color
@@ -573,6 +588,94 @@ export function ManualAddIcon({ size = 24, color = '#6B7280' }: IconProps) {
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M16.5 3.5L20.5 7.5L7 21H3V17L16.5 3.5Z" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M14 6L18 10" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  )
+}
+
+// 네비게이션/길찾기 아이콘
+export function NavigationIcon({ size = 24, color = '#FFFFFF' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M3 11L22 2L13 21L11 13L3 11Z" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill={color} />
+    </Svg>
+  )
+}
+
+// 휴지통/삭제 아이콘
+export function TrashIcon({ size = 24, color = '#DC2626' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M3 6H5H21" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M8 6V4C8 3.4 8.4 3 9 3H15C15.6 3 16 3.4 16 4V6" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M19 6V20C19 20.6 18.6 21 18 21H6C5.4 21 5 20.6 5 20V6" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M10 11V17" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Path d="M14 11V17" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  )
+}
+
+// 체크 서클 아이콘 (위치 인증용)
+export function CheckCircleIcon({ size = 24, color = '#16A34A' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth={1.5} />
+      <Path d="M8 12L11 15L16 9" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  )
+}
+
+// 편집 아이콘 (작은 연필)
+export function EditIcon({ size = 24, color = '#6B7280' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M11 4H4C3.4 4 3 4.4 3 5V20C3 20.6 3.4 21 4 21H19C19.6 21 20 20.6 20 20V13" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M18.5 2.5L21.5 5.5L12 15H9V12L18.5 2.5Z" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  )
+}
+
+// GPS/위치 인증 아이콘
+export function GpsIcon({ size = 24, color = '#0891B2' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="3" stroke={color} strokeWidth={1.5} />
+      <Circle cx="12" cy="12" r="8" stroke={color} strokeWidth={1.5} />
+      <Path d="M12 2V4" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Path d="M12 20V22" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Path d="M2 12H4" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Path d="M20 12H22" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  )
+}
+
+// 반짝이/스파클 아이콘 (AI 추천일정용)
+export function SparkleIcon({ size = 24, color = '#F97316' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z"
+        fill={color}
+        stroke={color}
+        strokeWidth={1}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M19 15L19.75 17.25L22 18L19.75 18.75L19 21L18.25 18.75L16 18L18.25 17.25L19 15Z"
+        fill={color}
+        stroke={color}
+        strokeWidth={0.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M5 2L5.5 3.5L7 4L5.5 4.5L5 6L4.5 4.5L3 4L4.5 3.5L5 2Z"
+        fill={color}
+        stroke={color}
+        strokeWidth={0.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   )
 }

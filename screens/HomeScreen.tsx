@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   View,
   Text,
@@ -13,7 +13,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { CampaignSchedule, POIType } from '../types'
-import { useManualScheduleStore, ManualSchedule } from '../stores'
+import { useManualScheduleStore, ManualSchedule, useSettingsStore } from '../stores'
+import AppHeader from '../components/AppHeader'
+import HomeScreenSenior from '../components/HomeScreenSenior'
+import ScheduleDetailModal from '../components/ScheduleDetailModal'
 import {
   ParkIcon,
   SchoolIcon,
@@ -185,12 +188,18 @@ function FilterChip({
   )
 }
 
-function ScheduleCard({ schedule }: { schedule: CampaignSchedule & { isManual?: boolean; color?: string; memo?: string } }) {
+function ScheduleCard({
+  schedule,
+  onPress,
+}: {
+  schedule: CampaignSchedule & { isManual?: boolean; color?: string; memo?: string; scheduleTitle?: string }
+  onPress?: () => void
+}) {
   const timeSlot = getTimeSlot(schedule.startTime)
   const isManual = schedule.isManual
 
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+    <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={onPress}>
       <View style={styles.cardHeader}>
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{schedule.startTime}</Text>
@@ -278,7 +287,10 @@ function ScheduleCard({ schedule }: { schedule: CampaignSchedule & { isManual?: 
         )}
       </View>
 
+      {/* 장소명 */}
       <Text style={styles.poiName}>{schedule.poi.name}</Text>
+
+      {/* 메모 (수동 일정만) */}
       {isManual && schedule.memo && (
         <Text style={styles.memoText}>{schedule.memo}</Text>
       )}
@@ -426,8 +438,221 @@ function AddScheduleModal({
                   onPress={() => {
                     // Mock location selection
                     setSelectedLocation({
-                      name: '정돈 강남점',
-                      address: '서울 강남구 강남대로110길 19-1',
+                      name: '나이키 강남점',
+                      address: '서울특별시 강남구 강남대로 446',
+                    })
+                  }}
+                >
+                  <View style={addModalStyles.locationPlaceholder}>
+                    <LocationIcon size={20} color={colors.neutral[400]} />
+                    <Text style={addModalStyles.placeholderText}>장소 검색</Text>
+                  </View>
+                  <Text style={addModalStyles.chevron}>›</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* 색상 */}
+            <View style={addModalStyles.fieldGroup}>
+              <Text style={addModalStyles.label}>색상 <Text style={addModalStyles.required}>*</Text></Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={addModalStyles.colorScroll}
+              >
+                {colorOptions.map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      addModalStyles.colorOption,
+                      { backgroundColor: color },
+                      selectedColor === color && addModalStyles.colorSelected,
+                    ]}
+                    onPress={() => setSelectedColor(color)}
+                  >
+                    {selectedColor === color && (
+                      <Text style={addModalStyles.checkmark}>✓</Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* 메모 */}
+            <View style={addModalStyles.fieldGroup}>
+              <Text style={addModalStyles.label}>메모</Text>
+              <TextInput
+                style={[addModalStyles.input, addModalStyles.memoInput]}
+                value={memo}
+                onChangeText={(text) => setMemo(text.slice(0, 30))}
+                placeholder="메모를 입력하세요 (30자 이내)"
+                placeholderTextColor={colors.neutral[400]}
+                multiline
+                maxLength={30}
+              />
+              <Text style={addModalStyles.charCount}>{memo.length}/30</Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </Modal>
+  )
+}
+
+// 직접 일정 수정 모달 컴포넌트
+function EditScheduleModal({
+  visible,
+  schedule,
+  onClose,
+  onUpdate,
+}: {
+  visible: boolean
+  schedule: ManualSchedule | null
+  onClose: () => void
+  onUpdate: (id: string, data: {
+    title: string
+    date: string
+    startTime: string
+    endTime: string
+    location: { name: string; address: string } | null
+    color: string
+    memo: string
+  }) => void
+}) {
+  const [title, setTitle] = useState('')
+  const [date, setDate] = useState(new Date())
+  const [startTime, setStartTime] = useState('09:00')
+  const [endTime, setEndTime] = useState('09:30')
+  const [selectedLocation, setSelectedLocation] = useState<{ name: string; address: string } | null>(null)
+  const [selectedColor, setSelectedColor] = useState(colorOptions[2])
+  const [memo, setMemo] = useState('')
+
+  // 스케줄 데이터로 폼 초기화
+  useEffect(() => {
+    if (schedule) {
+      setTitle(schedule.title)
+      setDate(new Date(schedule.date))
+      setStartTime(schedule.startTime)
+      setEndTime(schedule.endTime)
+      setSelectedLocation(schedule.location)
+      setSelectedColor(schedule.color)
+      setMemo(schedule.memo)
+    }
+  }, [schedule])
+
+  const formatDate = (d: Date) => {
+    return `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`
+  }
+
+  const handleUpdate = () => {
+    if (!title.trim() || !schedule) return
+    onUpdate(schedule.id, {
+      title: title.trim(),
+      date: date.toISOString().split('T')[0],
+      startTime,
+      endTime,
+      location: selectedLocation,
+      color: selectedColor,
+      memo: memo.trim(),
+    })
+    onClose()
+  }
+
+  const canSubmit = title.trim().length > 0
+
+  if (!schedule) return null
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={addModalStyles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={addModalStyles.keyboardView}
+        >
+          {/* 헤더 */}
+          <View style={addModalStyles.header}>
+            <TouchableOpacity onPress={onClose} style={addModalStyles.closeButton}>
+              <Text style={addModalStyles.closeText}>✕</Text>
+            </TouchableOpacity>
+            <Text style={addModalStyles.headerTitle}>일정 수정</Text>
+            <TouchableOpacity
+              onPress={handleUpdate}
+              disabled={!canSubmit}
+            >
+              <Text style={[addModalStyles.addText, !canSubmit && addModalStyles.addTextDisabled]}>
+                저장
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={addModalStyles.content}>
+            {/* 제목 */}
+            <View style={addModalStyles.fieldGroup}>
+              <Text style={addModalStyles.label}>제목 <Text style={addModalStyles.required}>*</Text></Text>
+              <TextInput
+                style={addModalStyles.input}
+                value={title}
+                onChangeText={setTitle}
+                placeholder="일정 제목"
+                placeholderTextColor={colors.neutral[400]}
+              />
+            </View>
+
+            {/* 날짜 */}
+            <View style={addModalStyles.fieldGroup}>
+              <Text style={addModalStyles.label}>날짜 <Text style={addModalStyles.required}>*</Text></Text>
+              <TouchableOpacity style={addModalStyles.inputRow}>
+                <Text style={addModalStyles.inputText}>{formatDate(date)}</Text>
+                <CalendarIcon size={20} color={colors.neutral[400]} />
+              </TouchableOpacity>
+            </View>
+
+            {/* 시작/종료 시간 */}
+            <View style={addModalStyles.timeRow}>
+              <View style={addModalStyles.timeField}>
+                <Text style={addModalStyles.label}>시작 <Text style={addModalStyles.required}>*</Text></Text>
+                <TouchableOpacity style={addModalStyles.inputRow}>
+                  <Text style={addModalStyles.inputText}>{startTime}</Text>
+                  <ClockIcon size={20} color={colors.neutral[400]} />
+                </TouchableOpacity>
+              </View>
+              <View style={addModalStyles.timeField}>
+                <Text style={addModalStyles.label}>종료 <Text style={addModalStyles.required}>*</Text></Text>
+                <TouchableOpacity style={addModalStyles.inputRow}>
+                  <Text style={addModalStyles.inputText}>{endTime}</Text>
+                  <ClockIcon size={20} color={colors.neutral[400]} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* 장소 */}
+            <View style={addModalStyles.fieldGroup}>
+              <Text style={addModalStyles.label}>장소</Text>
+              {selectedLocation ? (
+                <View style={addModalStyles.locationSelected}>
+                  <View style={addModalStyles.locationIconWrapper}>
+                    <LocationIcon size={20} color={colors.primary[500]} />
+                  </View>
+                  <View style={addModalStyles.locationInfo}>
+                    <Text style={addModalStyles.locationName}>{selectedLocation.name}</Text>
+                    <Text style={addModalStyles.locationAddress}>{selectedLocation.address}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => setSelectedLocation(null)}>
+                    <Text style={addModalStyles.removeText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={addModalStyles.inputRow}
+                  onPress={() => {
+                    setSelectedLocation({
+                      name: '나이키 강남점',
+                      address: '서울특별시 강남구 강남대로 446',
                     })
                   }}
                 >
@@ -491,9 +716,56 @@ export default function HomeScreen() {
   const [selectedPOI, setSelectedPOI] = useState<POICategory>('all')
   const [selectedTime, setSelectedTime] = useState<TimeCategory>('all')
   const [addModalVisible, setAddModalVisible] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [scheduleToEdit, setScheduleToEdit] = useState<ManualSchedule | null>(null)
+  const [detailModalVisible, setDetailModalVisible] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState<
+    (CampaignSchedule & { isManual?: boolean; color?: string; memo?: string }) | null
+  >(null)
 
-  // Manual schedule store
-  const { schedules: manualSchedules, addSchedule } = useManualScheduleStore()
+  // Settings store for large font mode (fontScale >= 1.2)
+  const fontScale = useSettingsStore((state) => state.fontScale)
+  const isLargeFontMode = fontScale >= 1.2
+
+  // Manual schedule store - 모든 훅은 조건부 리턴 전에 호출해야 함 (React Hooks 규칙)
+  const { schedules: manualSchedules, addSchedule, updateSchedule, removeSchedule, addVisitRecord } = useManualScheduleStore()
+
+  // Manual schedules를 CampaignSchedule 형식으로 변환 - useMemo도 훅이므로 조건부 리턴 전에 호출
+  const convertedManualSchedules: (CampaignSchedule & { isManual: boolean; color: string; memo: string; scheduleTitle: string })[] = useMemo(() => {
+    return manualSchedules.map((ms) => ({
+      id: ms.id,
+      userId: 'user1',
+      poi: {
+        id: `poi-${ms.id}`,
+        name: ms.location?.name || '', // 장소명
+        type: 'other' as POIType,
+        location: { lat: 0, lng: 0 },
+        baseExposure: 0,
+        timeWeights: { morning: 1, noon: 1, evening: 1 },
+        accessibility: 1,
+      },
+      date: ms.date,
+      startTime: ms.startTime,
+      estimatedExposure: 0,
+      status: 'planned' as const,
+      createdAt: ms.createdAt,
+      updatedAt: ms.createdAt,
+      isManual: true, // 수동 일정 구분용
+      color: ms.color,
+      memo: ms.memo,
+      scheduleTitle: ms.title, // 일정 제목 보존
+    }))
+  }, [manualSchedules])
+
+  // 모든 일정 (mock + manual)
+  const allSchedules = useMemo(() => {
+    return [...mockSchedules, ...convertedManualSchedules]
+  }, [convertedManualSchedules])
+
+  // 큰 글씨 모드: 완전히 다른 UI 렌더링
+  if (isLargeFontMode) {
+    return <HomeScreenSenior />
+  }
 
   const today = new Date()
   const dateString = today.toLocaleDateString('ko-KR', {
@@ -514,51 +786,46 @@ export default function HomeScreen() {
     addSchedule(data)
   }
 
-  // Manual schedules를 CampaignSchedule 형식으로 변환
-  const convertedManualSchedules: CampaignSchedule[] = useMemo(() => {
-    return manualSchedules.map((ms) => ({
-      id: ms.id,
-      userId: 'user1',
-      poi: {
-        id: `poi-${ms.id}`,
-        name: ms.location?.name || ms.title,
-        type: 'other' as POIType, // 'manual' 카테고리로 표시하기 위해 나중에 필터링에서 처리
-        location: { lat: 0, lng: 0 },
-        baseExposure: 0,
-        timeWeights: { morning: 1, noon: 1, evening: 1 },
-        accessibility: 1,
-      },
-      date: ms.date,
-      startTime: ms.startTime,
-      estimatedExposure: 0,
-      status: 'planned' as const,
-      createdAt: ms.createdAt,
-      updatedAt: ms.createdAt,
-      isManual: true, // 수동 일정 구분용
-      color: ms.color,
-      memo: ms.memo,
-    }))
-  }, [manualSchedules])
+  const handleUpdateSchedule = (id: string, data: {
+    title: string
+    date: string
+    startTime: string
+    endTime: string
+    location: { name: string; address: string } | null
+    color: string
+    memo: string
+  }) => {
+    updateSchedule(id, data)
+  }
 
-  // 모든 일정 (mock + manual)
-  const allSchedules = useMemo(() => {
-    return [...mockSchedules, ...convertedManualSchedules]
-  }, [convertedManualSchedules])
+  // 수정 모달 열기
+  const handleEditSchedule = (schedule: CampaignSchedule) => {
+    // manual schedule 찾기
+    const manualSchedule = manualSchedules.find((ms) => ms.id === schedule.id)
+    if (manualSchedule) {
+      setScheduleToEdit(manualSchedule)
+      setEditModalVisible(true)
+      setDetailModalVisible(false)
+    }
+  }
 
-  // 필터링된 일정
-  const filteredSchedules = allSchedules.filter((schedule) => {
-    const isManual = (schedule as CampaignSchedule & { isManual?: boolean }).isManual
-    const poiCategory = isManual ? 'manual' : getPOICategory(schedule.poi.type)
-    const poiMatch = selectedPOI === 'all' || poiCategory === selectedPOI
-    const timeMatch =
-      selectedTime === 'all' || getTimeSlot(schedule.startTime) === selectedTime
-    return poiMatch && timeMatch
-  })
+  // 필터링 및 시간순 정렬된 일정
+  const filteredSchedules = allSchedules
+    .filter((schedule) => {
+      const isManual = (schedule as CampaignSchedule & { isManual?: boolean }).isManual
+      const poiCategory = isManual ? 'manual' : getPOICategory(schedule.poi.type)
+      const poiMatch = selectedPOI === 'all' || poiCategory === selectedPOI
+      const timeMatch =
+        selectedTime === 'all' || getTimeSlot(schedule.startTime) === selectedTime
+      return poiMatch && timeMatch
+    })
+    .sort((a, b) => a.startTime.localeCompare(b.startTime))
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <AppHeader title="홈" />
       <ScrollView style={styles.scrollView}>
-        {/* 헤더 */}
+        {/* 날짜 헤더 */}
         <View style={styles.header}>
           <Text style={styles.date}>{dateString}</Text>
           <Text style={styles.subtitle}>
@@ -684,7 +951,14 @@ export default function HomeScreen() {
         <View style={styles.scheduleList}>
           {filteredSchedules.length > 0 ? (
             filteredSchedules.map((schedule) => (
-              <ScheduleCard key={schedule.id} schedule={schedule} />
+              <ScheduleCard
+                key={schedule.id}
+                schedule={schedule}
+                onPress={() => {
+                  setSelectedSchedule(schedule)
+                  setDetailModalVisible(true)
+                }}
+              />
             ))
           ) : (
             <View style={styles.emptyState}>
@@ -708,6 +982,44 @@ export default function HomeScreen() {
         visible={addModalVisible}
         onClose={() => setAddModalVisible(false)}
         onAdd={handleAddSchedule}
+      />
+
+      {/* 일정 상세 팝업 모달 */}
+      <ScheduleDetailModal
+        visible={detailModalVisible}
+        schedule={selectedSchedule}
+        onClose={() => {
+          setDetailModalVisible(false)
+          setSelectedSchedule(null)
+        }}
+        onDelete={(id) => {
+          removeSchedule(id)
+          setDetailModalVisible(false)
+          setSelectedSchedule(null)
+        }}
+        onVerifyLocation={(id, verified) => {
+          if (verified && selectedSchedule) {
+            const isManual = (selectedSchedule as CampaignSchedule & { isManual?: boolean }).isManual
+            addVisitRecord({
+              scheduleId: id,
+              scheduleName: selectedSchedule.poi.name,
+              category: isManual ? 'manual' : selectedSchedule.poi.type,
+              date: selectedSchedule.date,
+            })
+          }
+        }}
+        onEdit={handleEditSchedule}
+      />
+
+      {/* 일정 수정 모달 */}
+      <EditScheduleModal
+        visible={editModalVisible}
+        schedule={scheduleToEdit}
+        onClose={() => {
+          setEditModalVisible(false)
+          setScheduleToEdit(null)
+        }}
+        onUpdate={handleUpdateSchedule}
       />
     </SafeAreaView>
   )
@@ -852,6 +1164,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.primary[500],
     fontWeight: '600',
+  },
+  cardTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.neutral[800],
+    marginBottom: spacing.xs,
   },
   poiName: {
     fontSize: fontSize.sm,

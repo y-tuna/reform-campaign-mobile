@@ -16,11 +16,14 @@ import {
   CarIcon,
   PickupIcon,
   BikeIcon,
+  ScooterIcon,
   WalkIcon,
   InfoIcon,
   HelpIcon,
   LogoutIcon,
 } from '../components/icons'
+import AppHeader from '../components/AppHeader'
+import { useSettingsStore } from '../stores'
 
 // 온보딩과 동일한 종교시설 옵션
 const religionOptions = [
@@ -41,8 +44,9 @@ const mockProfile = {
 const mobilityOptions: { value: MobilityType; label: string }[] = [
   { value: 'walk', label: '도보' },
   { value: 'bike', label: '자전거' },
-  { value: 'car', label: '자차' },
-  { value: 'pickup', label: '픽업' },
+  { value: 'scooter', label: '스쿠터' },
+  { value: 'car', label: '승용차' },
+  { value: 'pickup', label: '트럭' },
 ]
 
 function getMobilityIcon(value: MobilityType, selected: boolean) {
@@ -52,6 +56,8 @@ function getMobilityIcon(value: MobilityType, selected: boolean) {
       return <CarIcon size={20} color={color} />
     case 'pickup':
       return <PickupIcon size={20} color={color} />
+    case 'scooter':
+      return <ScooterIcon size={20} color={color} />
     case 'bike':
       return <BikeIcon size={20} color={color} />
     case 'walk':
@@ -107,17 +113,25 @@ function SettingRow({
 }
 
 export default function ProfileScreen() {
-  const [mobility, setMobility] = useState<MobilityType>('car')
   const [intensity, setIntensity] = useState<IntensityLevel>('normal')
   const [religionExclude, setReligionExclude] = useState('none')
   const [religionModalVisible, setReligionModalVisible] = useState(false)
-  const [largeFont, setLargeFont] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+
+  // Settings store for accessibility and mobility
+  const fontScale = useSettingsStore((state) => state.fontScale)
+  const setFontScale = useSettingsStore((state) => state.setFontScale)
+  const darkMode = useSettingsStore((state) => state.darkMode)
+  const setDarkMode = useSettingsStore((state) => state.setDarkMode)
+  const mobility = useSettingsStore((state) => state.mobility)
+  const setMobility = useSettingsStore((state) => state.setMobility)
+
+  const largeFont = fontScale >= 1.2
 
   const selectedReligionLabel = religionOptions.find(o => o.value === religionExclude)?.label || '제외 없음'
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <AppHeader title="프로필" />
       <ScrollView style={styles.scrollView}>
         {/* 프로필 헤더 */}
         <View style={styles.profileHeader}>
@@ -186,13 +200,66 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>접근성 설정</Text>
 
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>큰 글씨 모드</Text>
-            <Switch
-              value={largeFont}
-              onValueChange={setLargeFont}
-              trackColor={{ false: colors.neutral[300], true: colors.primary[500] }}
-            />
+          {/* 글씨 크기 설정 */}
+          <View style={styles.fontScaleSection}>
+            <View style={styles.fontScaleHeader}>
+              <Text style={styles.toggleLabel}>글씨 크기</Text>
+              {largeFont && (
+                <View style={styles.largeFontBadge}>
+                  <Text style={styles.largeFontBadgeText}>큰 글씨 모드</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.fontScaleButtons}>
+              {[
+                { value: 0.85, label: 'A', size: 12, desc: '작게' },
+                { value: 1.0, label: 'A', size: 16, desc: '보통' },
+                { value: 1.2, label: 'A', size: 20, desc: '크게' },
+                { value: 1.4, label: 'A', size: 24, desc: '매우 크게' },
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.fontScaleButton,
+                    fontScale === option.value && styles.fontScaleButtonActive,
+                  ]}
+                  onPress={() => setFontScale(option.value)}
+                >
+                  <Text
+                    style={[
+                      styles.fontScaleButtonText,
+                      { fontSize: option.size },
+                      fontScale === option.value && styles.fontScaleButtonTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.fontScaleDesc,
+                      fontScale === option.value && styles.fontScaleDescActive,
+                    ]}
+                  >
+                    {option.desc}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.fontPreview}>
+              <Text style={[styles.previewText, { fontSize: 16 * fontScale }]}>
+                미리보기 텍스트입니다
+              </Text>
+              <Text style={[styles.previewSubtext, { fontSize: 14 * fontScale }]}>
+                이 크기로 앱의 글씨가 표시됩니다
+              </Text>
+            </View>
+            {largeFont && (
+              <View style={styles.largeFontWarning}>
+                <Text style={styles.largeFontWarningText}>
+                  수동 일정 기능은 큰 글씨 모드에서는 지원되지 않습니다.
+                </Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.toggleRow}>
@@ -519,5 +586,95 @@ const styles = StyleSheet.create({
   religionLabelSelected: {
     color: colors.primary[700],
     fontWeight: '500',
+  },
+  // 글씨 크기 설정 스타일
+  fontScaleSection: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral[100],
+  },
+  fontScaleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  fontScaleValue: {
+    fontSize: fontSize.sm,
+    color: colors.primary[500],
+    fontWeight: '600',
+  },
+  fontScaleButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  fontScaleButton: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  fontScaleButtonActive: {
+    backgroundColor: colors.primary[50],
+    borderColor: colors.primary[500],
+  },
+  fontScaleButtonText: {
+    color: colors.neutral[600],
+    fontWeight: '600',
+  },
+  fontScaleButtonTextActive: {
+    color: colors.primary[600],
+  },
+  fontScaleDesc: {
+    fontSize: fontSize.xs,
+    color: colors.neutral[500],
+    marginTop: spacing.xs,
+  },
+  fontScaleDescActive: {
+    color: colors.primary[600],
+  },
+  largeFontBadge: {
+    backgroundColor: colors.success[100],
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+  },
+  largeFontBadgeText: {
+    fontSize: fontSize.xs,
+    color: colors.success[700],
+    fontWeight: '600',
+  },
+  fontPreview: {
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.neutral[50],
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+  },
+  previewText: {
+    color: colors.neutral[800],
+    fontWeight: '500',
+    marginBottom: spacing.xs,
+  },
+  previewSubtext: {
+    color: colors.neutral[500],
+  },
+  largeFontWarning: {
+    marginTop: spacing.md,
+    padding: spacing.sm,
+    backgroundColor: colors.warning[50],
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.warning[200],
+  },
+  largeFontWarningText: {
+    fontSize: fontSize.sm,
+    color: colors.warning[700],
+    textAlign: 'center',
   },
 })

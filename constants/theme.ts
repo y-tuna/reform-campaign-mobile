@@ -223,3 +223,39 @@ export const animation = {
   base: 200,
   slow: 300,
 }
+
+// Dark Mode Colors
+export const darkColors = {
+  // Background colors
+  background: '#111827', // neutral[900]
+  surface: '#1F2937', // neutral[800]
+  surfaceSecondary: '#374151', // neutral[700]
+
+  // Text colors
+  textPrimary: '#F9FAFB', // neutral[50]
+  textSecondary: '#D1D5DB', // neutral[300]
+  textMuted: '#9CA3AF', // neutral[400]
+
+  // Border colors
+  border: '#374151', // neutral[700]
+  borderLight: '#4B5563', // neutral[600]
+
+  // Card colors
+  card: '#1F2937', // neutral[800]
+  cardHover: '#374151', // neutral[700]
+
+  // Primary brand (remains the same for consistency)
+  primary: '#F97316',
+  primaryLight: '#FB923C',
+  primaryDark: '#EA580C',
+
+  // Semantic colors (adjusted for dark mode)
+  success: '#22C55E',
+  warning: '#FBBF24',
+  error: '#EF4444',
+
+  // Input colors
+  inputBackground: '#374151', // neutral[700]
+  inputBorder: '#4B5563', // neutral[600]
+  placeholder: '#6B7280', // neutral[500]
+}

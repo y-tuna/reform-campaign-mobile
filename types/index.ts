@@ -78,7 +78,7 @@ export type ReligionPref =
   | { type: 'exclude'; list: string[] }
   | { type: 'only'; list: string[] }
 
-export type MobilityType = 'car' | 'pickup' | 'bike' | 'walk'
+export type MobilityType = 'car' | 'pickup' | 'bike' | 'scooter' | 'walk'
 export type IntensityLevel = 'hard' | 'normal' | 'light'
 
 // 챗봇

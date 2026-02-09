@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { POIType } from '../types'
 import { useManualScheduleStore } from '../stores'
+import AppHeader from '../components/AppHeader'
 import {
   TransitIcon,
   SchoolIcon,
@@ -124,7 +125,7 @@ const mockPOIsByCategory: Record<CategoryKey, { id: string; name: string; visits
     { id: 'pb10', name: '서초1동 주민센터', visits: 1, exposure: 30 },
   ],
   manual: [
-    { id: 'm1', name: '정돈 강남점', visits: 2, exposure: 60 },
+    { id: 'm1', name: '나이키 강남점', visits: 2, exposure: 60 },
     { id: 'm2', name: '스타벅스 역삼역점', visits: 2, exposure: 55 },
     { id: 'm3', name: '이디야커피 강남점', visits: 1, exposure: 30 },
     { id: 'm4', name: '맥도날드 삼성점', visits: 1, exposure: 25 },
@@ -394,11 +395,11 @@ function StatCard({
 }) {
   return (
     <View style={styles.statCard}>
-      <Text style={styles.statValue}>
+      <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
         {value.toLocaleString()}
         <Text style={styles.statUnit}>{unit}</Text>
       </Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
     </View>
   )
 }
@@ -455,7 +456,7 @@ export default function DashboardScreen() {
   const [modalVisible, setModalVisible] = useState(false)
 
   // Manual schedule store
-  const { schedules: manualSchedules } = useManualScheduleStore()
+  const { schedules: manualSchedules, visitRecords, getTotalVisitCount } = useManualScheduleStore()
 
   // Manual schedules를 POI 데이터 형식으로 변환
   const manualPOIs = useMemo(() => {
@@ -475,15 +476,24 @@ export default function DashboardScreen() {
     }
   }, [manualPOIs])
 
-  // 동적 카테고리 (manual 방문율 업데이트)
+  // 동적 카테고리 (실제 방문 기록 기반 방문율 업데이트)
   const dynamicCategories = useMemo(() => {
-    return categories.map((cat) => {
-      if (cat.key === 'manual' && manualPOIs.length > 0) {
-        return { ...cat, visitRate: manualPOIs.length * 2 } // 수동 일정 수 기반 방문율
-      }
-      return cat
+    // 카테고리별 방문 횟수 집계
+    const visitCountByCategory: Record<string, number> = {}
+    visitRecords.forEach((record) => {
+      const cat = record.category === 'subway' || record.category === 'bus' ? 'transit' :
+                  record.category === 'facility' ? 'park' :
+                  record.category === 'other' ? 'manual' : record.category
+      visitCountByCategory[cat] = (visitCountByCategory[cat] || 0) + 1
     })
-  }, [manualPOIs])
+
+    return categories.map((cat) => {
+      const actualVisits = visitCountByCategory[cat.key] || 0
+      // 기본 방문율 + 실제 방문 기록 반영
+      const newVisitRate = cat.visitRate + actualVisits * 5
+      return { ...cat, visitRate: Math.min(newVisitRate, 100) }
+    })
+  }, [visitRecords])
 
   const handleCategoryPress = (category: CategoryInfo) => {
     setSelectedCategory(category)
@@ -497,6 +507,7 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <AppHeader title="대시보드" />
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={styles.title}>내 활동 현황</Text>
@@ -617,7 +628,9 @@ export default function DashboardScreen() {
                   <View style={styles.modalStatItem}>
                     <Text style={styles.modalStatLabel}>예상 접촉</Text>
                     <Text style={styles.modalStatValue}>
-                      {poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.exposure, 0)}명
+                      {selectedCategory.key === 'manual'
+                        ? '-'
+                        : `${poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.exposure, 0)}명`}
                     </Text>
                   </View>
                 </View>
@@ -632,7 +645,7 @@ export default function DashboardScreen() {
                       <View style={styles.poiInfo}>
                         <Text style={styles.poiName}>{item.name}</Text>
                         <Text style={styles.poiMeta}>
-                          방문 {item.visits}회 · 접촉 {item.exposure}명
+                          방문 {item.visits}회 · 접촉 {selectedCategory.key === 'manual' ? '-' : `${item.exposure}명`}
                         </Text>
                       </View>
                     </View>
@@ -693,9 +706,11 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: colors.neutral[50],
-    padding: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
     borderRadius: borderRadius.md,
     alignItems: 'center',
+    minWidth: 0,
   },
   statValue: {
     fontSize: fontSize['2xl'],
@@ -711,6 +726,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.neutral[500],
     marginTop: spacing.xs,
+    textAlign: 'center',
   },
   categoryContainer: {
     gap: spacing.sm,

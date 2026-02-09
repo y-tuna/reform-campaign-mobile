@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { ChatMessage } from '../types'
 import { BotIcon, UserIcon, KeyboardIcon } from '../components/icons'
+import AppHeader from '../components/AppHeader'
 
 // Mock 대화
 const initialMessages: ChatMessage[] = [
@@ -169,9 +170,7 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={90}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>AI 챗봇</Text>
-        </View>
+        <AppHeader title="AI 챗봇" />
 
         <ScrollView
           style={styles.messageList}

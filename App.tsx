@@ -20,6 +20,7 @@ import {
 } from './screens'
 import { colors } from './constants/theme'
 import { useManualScheduleStore } from './stores'
+import { ThemeProvider } from './contexts/ThemeContext'
 import {
   HomeIcon,
   DashboardIcon,
@@ -119,41 +120,43 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {!isAuthenticated ? (
-            <>
-              <Stack.Screen name="Login">
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {!isAuthenticated ? (
+              <>
+                <Stack.Screen name="Login">
+                  {(props) => (
+                    <LoginScreen
+                      {...props}
+                      onLogin={handleLogin}
+                      onNavigateToOnboarding={() => {
+                        setIsAuthenticated(true)
+                        setHasCompletedOnboarding(false)
+                      }}
+                    />
+                  )}
+                </Stack.Screen>
+              </>
+            ) : !hasCompletedOnboarding ? (
+              <Stack.Screen name="Onboarding">
                 {(props) => (
-                  <LoginScreen
+                  <OnboardingScreen
                     {...props}
-                    onLogin={handleLogin}
-                    onNavigateToOnboarding={() => {
-                      setIsAuthenticated(true)
-                      setHasCompletedOnboarding(false)
-                    }}
+                    onComplete={handleOnboardingComplete}
+                    onBack={() => setIsAuthenticated(false)}
                   />
                 )}
               </Stack.Screen>
-            </>
-          ) : !hasCompletedOnboarding ? (
-            <Stack.Screen name="Onboarding">
-              {(props) => (
-                <OnboardingScreen
-                  {...props}
-                  onComplete={handleOnboardingComplete}
-                  onBack={() => setIsAuthenticated(false)}
-                />
-              )}
-            </Stack.Screen>
-          ) : (
-            <Stack.Screen name="Main" component={MainTabs} />
-          )}
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
-    </SafeAreaProvider>
+            ) : (
+              <Stack.Screen name="Main" component={MainTabs} />
+            )}
+          </Stack.Navigator>
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   )
 }
 

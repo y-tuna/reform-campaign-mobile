@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { Notification } from '../types'
 import { AlertIcon, CalendarIcon, AnnouncementIcon } from '../components/icons'
+import AppHeader from '../components/AppHeader'
 
 // Mock 데이터
 const mockNotifications: Notification[] = [
@@ -112,9 +113,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>알림</Text>
-      </View>
+      <AppHeader title="알림" showNotification={false} />
 
       <ScrollView style={styles.scrollView}>
         {todayNotifications.length > 0 && (
