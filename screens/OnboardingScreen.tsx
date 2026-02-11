@@ -285,7 +285,6 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
 
               <View style={styles.fontScaleButtons}>
                 {[
-                  { value: 0.85, label: 'A', size: 12, desc: '작게' },
                   { value: 1.0, label: 'A', size: 16, desc: '보통' },
                   { value: 1.2, label: 'A', size: 20, desc: '크게' },
                   { value: 1.4, label: 'A', size: 24, desc: '매우 크게' },

@@ -454,17 +454,30 @@ function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
     return { ...cat, segLength, offset, proportion }
   })
 
+  // 각 세그먼트의 중심 각도 계산 → 범례 위치 결정
+  const labelRadius = radius + strokeWidth / 2 + 40
+  const labels = segments.map((seg) => {
+    const midOffset = seg.offset + seg.segLength / 2
+    const midAngle = ((midOffset / circumference) * 360 - 90) * (Math.PI / 180)
+    const x = center + labelRadius * Math.cos(midAngle)
+    const y = center + labelRadius * Math.sin(midAngle)
+    const percentage = totalRate > 0 ? Math.round((seg.visitRate / totalRate) * 100) : 0
+    return { ...seg, x, y, percentage }
+  })
+
+  const outerSize = size + 120
+
   return (
     <View style={donutStyles.container}>
-      <View style={donutStyles.chartWrapper}>
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <View style={[donutStyles.chartWrapper, { width: outerSize, height: outerSize }]}>
+        <Svg width={outerSize} height={outerSize} viewBox={`0 0 ${outerSize} ${outerSize}`}>
           {segments.map((seg) => (
             <SvgCircle
               key={seg.key}
-              cx={center}
-              cy={center}
+              cx={outerSize / 2}
+              cy={outerSize / 2}
               r={radius}
-              stroke={seg.color}
+              stroke={seg.color + '55'}
               strokeWidth={strokeWidth}
               fill="none"
               strokeDasharray={`${seg.segLength} ${circumference - seg.segLength}`}
@@ -473,19 +486,21 @@ function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
             />
           ))}
         </Svg>
-      </View>
-
-      <View style={donutStyles.legend}>
-        {cats.map((cat) => {
-          const IconComponent = cat.icon
-          const percentage = totalRate > 0 ? Math.round((cat.visitRate / totalRate) * 100) : 0
+        {/* 범례를 각 세그먼트 옆에 absolute 배치 */}
+        {labels.map((lbl) => {
+          const IconComponent = lbl.icon
+          const offsetX = outerSize / 2 - center
           return (
-            <View key={cat.key} style={donutStyles.legendItem}>
-              <View style={[donutStyles.legendDot, { backgroundColor: cat.color }]} />
-              <IconComponent size={14} color={cat.color} />
-              <Text style={donutStyles.legendLabel}>{cat.label}</Text>
-              <Text style={[donutStyles.legendPercent, { color: cat.color }]}>
-                {percentage}%
+            <View
+              key={`label-${lbl.key}`}
+              style={[
+                donutStyles.labelItem,
+                { left: lbl.x + offsetX - 30, top: lbl.y + offsetX - 10 },
+              ]}
+            >
+              <IconComponent size={12} color={lbl.color} />
+              <Text style={[donutStyles.labelText, { color: lbl.color }]}>
+                {lbl.percentage}%
               </Text>
             </View>
           )
@@ -497,39 +512,22 @@ function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
 
 const donutStyles = StyleSheet.create({
   container: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     alignItems: 'center',
   },
   chartWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    position: 'relative',
   },
-  legend: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    justifyContent: 'center',
-  },
-  legendItem: {
+  labelItem: {
+    position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    gap: 2,
   },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendLabel: {
-    fontSize: fontSize.xs,
-    color: colors.neutral[600],
-  },
-  legendPercent: {
-    fontSize: fontSize.xs,
+  labelText: {
+    fontSize: 11,
     fontWeight: '600',
   },
 })
@@ -623,7 +621,9 @@ export default function DashboardScreen() {
         {/* 방문 카테고리 */}
         <View style={styles.section}>
           <View style={styles.sectionTitleRow}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>전체 방문율</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>
+              {visitRateView === 'cards' ? '전체 방문율' : '카테고리별 방문 비율'}
+            </Text>
             <View style={styles.toggleContainer}>
               <TouchableOpacity
                 style={[styles.toggleButton, visitRateView === 'cards' && styles.toggleButtonActive]}

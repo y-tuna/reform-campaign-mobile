@@ -24,6 +24,10 @@ interface SettingsState {
   notifications: Notification[]
   unreadCount: number
 
+  // AI 추천 쿨타임
+  aiCooldownStart: number | null
+  aiUsedCount: number
+
   // Computed
   isSeniorMode: () => boolean
 
@@ -35,6 +39,8 @@ interface SettingsState {
   markAsRead: (id: string) => void
   markAllAsRead: () => void
   clearNotifications: () => void
+  useAiRecommend: () => void
+  resetAiCooldown: () => void
 }
 
 // Web용 localStorage 스토리지
@@ -90,6 +96,10 @@ export const useSettingsStore = create<SettingsState>()(
       ],
       unreadCount: 2,
 
+      // AI 추천 쿨타임
+      aiCooldownStart: null,
+      aiUsedCount: 0,
+
       // Computed: 큰 글씨 모드 여부
       isSeniorMode: () => get().fontScale >= 1.2,
 
@@ -131,6 +141,21 @@ export const useSettingsStore = create<SettingsState>()(
         })),
 
       clearNotifications: () => set({ notifications: [], unreadCount: 0 }),
+
+      useAiRecommend: () =>
+        set((state) => {
+          const now = Date.now()
+          // 30분 경과 시 리셋
+          if (state.aiCooldownStart && now - state.aiCooldownStart >= 30 * 60 * 1000) {
+            return { aiCooldownStart: now, aiUsedCount: 1 }
+          }
+          return {
+            aiCooldownStart: state.aiCooldownStart ?? now,
+            aiUsedCount: state.aiUsedCount + 1,
+          }
+        }),
+
+      resetAiCooldown: () => set({ aiCooldownStart: null, aiUsedCount: 0 }),
     }),
     {
       name: 'app-settings',

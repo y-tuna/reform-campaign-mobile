@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
@@ -132,6 +133,51 @@ const mockSchedules: CampaignSchedule[] = [
     updatedAt: '2024-12-22T00:00:00Z',
   },
 ]
+
+// AI 추천용 카테고리별 POI 풀
+type AiCategory = 'transit' | 'school' | 'shop' | 'park' | 'culture' | 'religious' | 'public'
+
+const aiCategoryInfo: { key: AiCategory; label: string; color: string; icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
+  { key: 'transit', label: '대중교통', color: '#0891B2', icon: TransitIcon },
+  { key: 'school', label: '학교', color: '#7C3AED', icon: SchoolIcon },
+  { key: 'shop', label: '상권', color: '#F97316', icon: ShopIcon },
+  { key: 'park', label: '공원', color: '#16A34A', icon: ParkIcon },
+  { key: 'culture', label: '문화시설', color: '#EC4899', icon: CultureIcon },
+  { key: 'religious', label: '종교시설', color: '#8B5CF6', icon: ReligiousIcon },
+  { key: 'public', label: '공공시설', color: '#0EA5E9', icon: PublicIcon },
+]
+
+const aiPOIPool: Record<AiCategory, { name: string; type: POIType; lat: number; lng: number; exposure: number }[]> = {
+  transit: [
+    { name: '강남역 3번출구', type: 'subway', lat: 37.4979, lng: 127.0276, exposure: 120 },
+    { name: '삼성역 환승통로', type: 'subway', lat: 37.5089, lng: 127.0631, exposure: 85 },
+    { name: '선릉역 1번출구', type: 'subway', lat: 37.5047, lng: 127.0492, exposure: 90 },
+  ],
+  school: [
+    { name: '대치동 학원가', type: 'school', lat: 37.5006, lng: 127.0566, exposure: 95 },
+    { name: '목동 학원가', type: 'school', lat: 37.5248, lng: 126.8735, exposure: 80 },
+  ],
+  shop: [
+    { name: '강남역 상권', type: 'market', lat: 37.4979, lng: 127.0276, exposure: 110 },
+    { name: '홍대입구 상권', type: 'market', lat: 37.5573, lng: 126.9258, exposure: 100 },
+  ],
+  park: [
+    { name: '역삼공원', type: 'facility', lat: 37.5006, lng: 127.0366, exposure: 65 },
+    { name: '양재시민의숲', type: 'facility', lat: 37.4713, lng: 127.0380, exposure: 55 },
+  ],
+  culture: [
+    { name: '코엑스', type: 'other', lat: 37.5117, lng: 127.0590, exposure: 90 },
+    { name: '예술의전당', type: 'other', lat: 37.4812, lng: 127.0129, exposure: 70 },
+  ],
+  religious: [
+    { name: '봉은사', type: 'religious', lat: 37.5146, lng: 127.0577, exposure: 50 },
+    { name: '명동성당', type: 'religious', lat: 37.5633, lng: 126.9872, exposure: 60 },
+  ],
+  public: [
+    { name: '강남구청', type: 'other', lat: 37.5172, lng: 127.0473, exposure: 55 },
+    { name: '역삼1동 주민센터', type: 'other', lat: 37.5003, lng: 127.0365, exposure: 40 },
+  ],
+}
 
 const poiTypeLabel: Record<POIType | 'manual', string> = {
   subway: '대중교통',
@@ -298,6 +344,169 @@ function ScheduleCard({
     </TouchableOpacity>
   )
 }
+
+// AI 추천 일정 모달
+function AiRecommendModal({
+  visible,
+  onClose,
+  onGenerate,
+}: {
+  visible: boolean
+  onClose: () => void
+  onGenerate: (category: AiCategory) => void
+}) {
+  const [selectedCat, setSelectedCat] = useState<AiCategory | null>(null)
+
+  const handleGenerate = () => {
+    if (!selectedCat) return
+    onGenerate(selectedCat)
+    setSelectedCat(null)
+    onClose()
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <View style={aiModalStyles.overlay}>
+        <View style={aiModalStyles.content}>
+          <TouchableOpacity style={aiModalStyles.closeBtn} onPress={onClose}>
+            <Text style={aiModalStyles.closeBtnText}>✕</Text>
+          </TouchableOpacity>
+
+          <Text style={aiModalStyles.title}>AI에게 일정 추천받기!</Text>
+          <Text style={aiModalStyles.desc}>
+            지금 어디를 가야할지 모르겠다면?{'\n'}
+            방문하고 싶은 장소 카테고리를 선택해주시면{'\n'}
+            추천일정이 생성됩니다.
+          </Text>
+
+          <View style={aiModalStyles.categoryGrid}>
+            {aiCategoryInfo.map((cat) => {
+              const isActive = selectedCat === cat.key
+              const IconComp = cat.icon
+              return (
+                <TouchableOpacity
+                  key={cat.key}
+                  style={[
+                    aiModalStyles.categoryBtn,
+                    isActive && { borderColor: cat.color, backgroundColor: cat.color + '15' },
+                  ]}
+                  onPress={() => setSelectedCat(cat.key)}
+                >
+                  <IconComp size={20} color={isActive ? cat.color : colors.neutral[400]} />
+                  <Text style={[aiModalStyles.categoryLabel, isActive && { color: cat.color, fontWeight: '600' }]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          <View style={aiModalStyles.warningBox}>
+            <Text style={aiModalStyles.warningText}>
+              AI 추천일정은 30분 간 2건만 생성 가능합니다.
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={[aiModalStyles.generateBtn, !selectedCat && { opacity: 0.4 }]}
+            onPress={handleGenerate}
+            disabled={!selectedCat}
+          >
+            <SparkleIcon size={16} color={colors.white} />
+            <Text style={aiModalStyles.generateBtnText}>AI에게 일정 추천받기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
+const aiModalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  content: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  closeBtn: {
+    alignSelf: 'flex-end',
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.neutral[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeBtnText: {
+    fontSize: fontSize.md,
+    color: colors.neutral[500],
+  },
+  title: {
+    fontSize: fontSize.xl,
+    fontWeight: 'bold',
+    color: colors.neutral[800],
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  desc: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[500],
+    lineHeight: 20,
+    marginBottom: spacing.lg,
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  categoryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    backgroundColor: colors.neutral[50],
+  },
+  categoryLabel: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[600],
+  },
+  warningBox: {
+    backgroundColor: colors.warning[50],
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  warningText: {
+    fontSize: fontSize.xs,
+    color: colors.warning[700],
+    textAlign: 'center',
+  },
+  generateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primary[500],
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+  },
+  generateBtnText: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.white,
+  },
+})
 
 // 직접 일정 추가 모달 컴포넌트
 function AddScheduleModal({
@@ -717,6 +926,7 @@ export default function HomeScreen() {
   const [selectedPOI, setSelectedPOI] = useState<POICategory>('all')
   const [selectedTime, setSelectedTime] = useState<TimeCategory>('all')
   const [addModalVisible, setAddModalVisible] = useState(false)
+  const [aiModalVisible, setAiModalVisible] = useState(false)
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [scheduleToEdit, setScheduleToEdit] = useState<ManualSchedule | null>(null)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
@@ -727,6 +937,75 @@ export default function HomeScreen() {
   // Settings store for large font mode (fontScale >= 1.2)
   const fontScale = useSettingsStore((state) => state.fontScale)
   const isLargeFontMode = fontScale >= 1.2
+
+  // AI 쿨타임 상태
+  const aiCooldownStart = useSettingsStore((state) => state.aiCooldownStart)
+  const aiUsedCount = useSettingsStore((state) => state.aiUsedCount)
+  const useAiRecommend = useSettingsStore((state) => state.useAiRecommend)
+  const resetAiCooldown = useSettingsStore((state) => state.resetAiCooldown)
+
+  const [cooldownDisplay, setCooldownDisplay] = useState('')
+
+  // 쿨타임 자동 리셋 + 카운트다운 표시
+  useEffect(() => {
+    if (!aiCooldownStart) return
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - aiCooldownStart
+      const remaining = 30 * 60 * 1000 - elapsed
+      if (remaining <= 0) {
+        resetAiCooldown()
+        setCooldownDisplay('')
+      } else {
+        const mins = Math.floor(remaining / 60000)
+        const secs = Math.floor((remaining % 60000) / 1000)
+        setCooldownDisplay(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`)
+      }
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [aiCooldownStart, resetAiCooldown])
+
+  const aiRemaining = aiCooldownStart && Date.now() - aiCooldownStart < 30 * 60 * 1000
+    ? 2 - aiUsedCount
+    : 2
+  const aiExhausted = aiRemaining <= 0
+
+  // AI 일정 생성 핸들러
+  const [aiGeneratedSchedules, setAiGeneratedSchedules] = useState<CampaignSchedule[]>([])
+
+  const handleAiGenerate = useCallback((category: AiCategory) => {
+    if (aiExhausted) return
+    const pool = aiPOIPool[category]
+    const poi = pool[Math.floor(Math.random() * pool.length)]
+    const now = new Date()
+    const startHour = String(now.getHours()).padStart(2, '0')
+    const startMin = String(now.getMinutes()).padStart(2, '0')
+    const endHour = String(Math.min(now.getHours() + 2, 23)).padStart(2, '0')
+
+    const newSchedule: CampaignSchedule = {
+      id: `ai-${Date.now()}`,
+      userId: 'user1',
+      poi: {
+        id: `poi-ai-${Date.now()}`,
+        name: poi.name,
+        type: poi.type,
+        location: { lat: poi.lat, lng: poi.lng },
+        baseExposure: poi.exposure * 2,
+        timeWeights: { morning: 1, noon: 1, evening: 1 },
+        accessibility: 0.8,
+      },
+      date: now.toISOString().split('T')[0],
+      startTime: `${startHour}:${startMin}`,
+      endTime: `${endHour}:${startMin}`,
+      estimatedExposure: poi.exposure,
+      status: 'planned',
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+    }
+
+    setAiGeneratedSchedules((prev) => [...prev, newSchedule])
+    useAiRecommend()
+    Alert.alert('일정 생성 완료', `${poi.name} 일정이 추가되었습니다.`)
+  }, [aiExhausted, useAiRecommend])
 
   // Manual schedule store - 모든 훅은 조건부 리턴 전에 호출해야 함 (React Hooks 규칙)
   const { schedules: manualSchedules, addSchedule, updateSchedule, removeSchedule, addVisitRecord } = useManualScheduleStore()
@@ -758,10 +1037,10 @@ export default function HomeScreen() {
     }))
   }, [manualSchedules])
 
-  // 모든 일정 (mock + manual)
+  // 모든 일정 (mock + AI generated + manual)
   const allSchedules = useMemo(() => {
-    return [...mockSchedules, ...convertedManualSchedules]
-  }, [convertedManualSchedules])
+    return [...mockSchedules, ...aiGeneratedSchedules, ...convertedManualSchedules]
+  }, [convertedManualSchedules, aiGeneratedSchedules])
 
   // 큰 글씨 모드: 완전히 다른 UI 렌더링
   if (isLargeFontMode) {
@@ -832,11 +1111,16 @@ export default function HomeScreen() {
             <Text style={styles.date}>{dateString}</Text>
             <View style={styles.headerButtons}>
               <TouchableOpacity
-                style={styles.aiAddButton}
-                onPress={() => setAddModalVisible(true)}
+                style={[styles.aiAddButton, aiExhausted && { opacity: 0.4 }]}
+                onPress={() => !aiExhausted && setAiModalVisible(true)}
+                disabled={aiExhausted}
               >
                 <SparkleIcon size={14} color="#F97316" />
-                <Text style={styles.aiAddButtonText}>AI일정 추가</Text>
+                <Text style={styles.aiAddButtonText}>
+                  {aiExhausted && cooldownDisplay
+                    ? cooldownDisplay
+                    : `AI 추천받기(${aiRemaining}/2)`}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.manualAddButton}
@@ -993,6 +1277,13 @@ export default function HomeScreen() {
         visible={addModalVisible}
         onClose={() => setAddModalVisible(false)}
         onAdd={handleAddSchedule}
+      />
+
+      {/* AI 추천 일정 모달 */}
+      <AiRecommendModal
+        visible={aiModalVisible}
+        onClose={() => setAiModalVisible(false)}
+        onGenerate={handleAiGenerate}
       />
 
       {/* 일정 상세 팝업 모달 */}
