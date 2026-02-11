@@ -31,6 +31,7 @@ import {
   SunsetIcon,
   MoonIcon,
   PlusIcon,
+  SparkleIcon,
   LocationIcon,
   CalendarIcon,
   ClockIcon,
@@ -827,7 +828,25 @@ export default function HomeScreen() {
       <ScrollView style={styles.scrollView}>
         {/* 날짜 헤더 */}
         <View style={styles.header}>
-          <Text style={styles.date}>{dateString}</Text>
+          <View style={styles.headerTopRow}>
+            <Text style={styles.date}>{dateString}</Text>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity
+                style={styles.aiAddButton}
+                onPress={() => setAddModalVisible(true)}
+              >
+                <SparkleIcon size={14} color="#F97316" />
+                <Text style={styles.aiAddButtonText}>AI일정 추가</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.manualAddButton}
+                onPress={() => setAddModalVisible(true)}
+              >
+                <ManualAddIcon size={14} color="#6B7280" />
+                <Text style={styles.manualAddButtonText}>직접추가</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           <Text style={styles.subtitle}>
             오늘의 유세 {filteredSchedules.length}곳
           </Text>
@@ -967,14 +986,6 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* 일정 추가 버튼 */}
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setAddModalVisible(true)}
-        >
-          <PlusIcon size={20} color={colors.neutral[400]} />
-          <Text style={styles.addButtonText}>일정 추가</Text>
-        </TouchableOpacity>
       </ScrollView>
 
       {/* 직접 일정 추가 모달 */}
@@ -1189,22 +1200,46 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: colors.neutral[400],
   },
-  addButton: {
+  headerTopRow: {
     flexDirection: 'row',
-    margin: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    borderStyle: 'dashed',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  headerButtons: {
+    flexDirection: 'row',
     gap: spacing.sm,
   },
-  addButtonText: {
-    color: colors.neutral[500],
-    fontSize: fontSize.md,
+  aiAddButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: '#F97316',
+    backgroundColor: '#F973161A',
+  },
+  aiAddButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: '#F97316',
+  },
+  manualAddButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: '#6B7280',
+    backgroundColor: '#6B72801A',
+  },
+  manualAddButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: '#6B7280',
   },
 })
 

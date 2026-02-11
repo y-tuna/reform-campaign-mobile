@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList, Image } from 'react-native'
+import Svg, { Circle as SvgCircle } from 'react-native-svg'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { POIType } from '../types'
@@ -248,24 +249,6 @@ function ActivityHeatmap() {
       {/* 기간 표시 */}
       <Text style={heatmapStyles.dateRange}>2025.3.1 ~ 2025.6.2</Text>
 
-      {/* 통계 카드 */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>
-            {heatmapStats.totalHours}
-            <Text style={styles.statUnit}>시간</Text>
-          </Text>
-          <Text style={styles.statLabel}>총 활동 시간</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>
-            {heatmapStats.totalSchedules}
-            <Text style={styles.statUnit}>개</Text>
-          </Text>
-          <Text style={styles.statLabel}>소화 일정 수</Text>
-        </View>
-      </View>
-
       {/* 히트맵 그리드 */}
       <View style={heatmapStyles.heatmapWrapper}>
         <View style={heatmapStyles.heatmapContainer}>
@@ -451,9 +434,110 @@ function CategoryCard({
   )
 }
 
+function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
+  const size = 200
+  const strokeWidth = 32
+  const radius = (size - strokeWidth) / 2
+  const center = size / 2
+  const circumference = 2 * Math.PI * radius
+
+  const totalRate = cats.reduce((sum, cat) => sum + cat.visitRate, 0)
+
+  // Build segments using strokeDasharray on Circle
+  let cumulativeOffset = 0
+
+  const segments = cats.map((cat) => {
+    const proportion = totalRate > 0 ? cat.visitRate / totalRate : 0
+    const segLength = proportion * circumference
+    const offset = cumulativeOffset
+    cumulativeOffset += segLength
+    return { ...cat, segLength, offset, proportion }
+  })
+
+  return (
+    <View style={donutStyles.container}>
+      <View style={donutStyles.chartWrapper}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {segments.map((seg) => (
+            <SvgCircle
+              key={seg.key}
+              cx={center}
+              cy={center}
+              r={radius}
+              stroke={seg.color}
+              strokeWidth={strokeWidth}
+              fill="none"
+              strokeDasharray={`${seg.segLength} ${circumference - seg.segLength}`}
+              strokeDashoffset={-(seg.offset - circumference * 0.25)}
+              strokeLinecap="butt"
+            />
+          ))}
+        </Svg>
+      </View>
+
+      <View style={donutStyles.legend}>
+        {cats.map((cat) => {
+          const IconComponent = cat.icon
+          const percentage = totalRate > 0 ? Math.round((cat.visitRate / totalRate) * 100) : 0
+          return (
+            <View key={cat.key} style={donutStyles.legendItem}>
+              <View style={[donutStyles.legendDot, { backgroundColor: cat.color }]} />
+              <IconComponent size={14} color={cat.color} />
+              <Text style={donutStyles.legendLabel}>{cat.label}</Text>
+              <Text style={[donutStyles.legendPercent, { color: cat.color }]}>
+                {percentage}%
+              </Text>
+            </View>
+          )
+        })}
+      </View>
+    </View>
+  )
+}
+
+const donutStyles = StyleSheet.create({
+  container: {
+    marginTop: spacing.md,
+    alignItems: 'center',
+  },
+  chartWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  legend: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    justifyContent: 'center',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendLabel: {
+    fontSize: fontSize.xs,
+    color: colors.neutral[600],
+  },
+  legendPercent: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+  },
+})
+
 export default function DashboardScreen() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryInfo | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
+  const [visitRateView, setVisitRateView] = useState<'cards' | 'chart'>('cards')
 
   // Manual schedule store
   const { schedules: manualSchedules, visitRecords, getTotalVisitCount } = useManualScheduleStore()
@@ -519,6 +603,11 @@ export default function DashboardScreen() {
           <Text style={styles.sectionTitle}>활동 통계</Text>
           <View style={styles.statsGrid}>
             <StatCard
+              label="총 활동 시간"
+              value={heatmapStats.totalHours}
+              unit="시간"
+            />
+            <StatCard
               label="유세 횟수"
               value={mockStats.totalVisits}
               unit="회"
@@ -528,17 +617,33 @@ export default function DashboardScreen() {
               value={mockStats.totalExposure}
               unit="명"
             />
-            <StatCard
-              label="이동 거리"
-              value={mockStats.totalDistance}
-              unit="km"
-            />
           </View>
         </View>
 
         {/* 방문 카테고리 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>전체 방문율</Text>
+          <View style={styles.sectionTitleRow}>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>전체 방문율</Text>
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
+                style={[styles.toggleButton, visitRateView === 'cards' && styles.toggleButtonActive]}
+                onPress={() => setVisitRateView('cards')}
+              >
+                <Text style={[styles.toggleText, visitRateView === 'cards' && styles.toggleTextActive]}>
+                  카드
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.toggleButton, visitRateView === 'chart' && styles.toggleButtonActive]}
+                onPress={() => setVisitRateView('chart')}
+              >
+                <Text style={[styles.toggleText, visitRateView === 'chart' && styles.toggleTextActive]}>
+                  차트
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.overallProgressContainer}>
             <View style={styles.overallProgressBar}>
               <View
@@ -551,16 +656,19 @@ export default function DashboardScreen() {
             <Text style={styles.overallProgressText}>{mockStats.overallVisitRate}%</Text>
           </View>
 
-          {/* 카테고리 카드 그리드 */}
-          <View style={styles.categoryCardGrid}>
-            {dynamicCategories.map((category) => (
-              <CategoryCard
-                key={category.key}
-                category={category}
-                onPress={() => handleCategoryPress(category)}
-              />
-            ))}
-          </View>
+          {visitRateView === 'cards' ? (
+            <View style={styles.categoryCardGrid}>
+              {dynamicCategories.map((category) => (
+                <CategoryCard
+                  key={category.key}
+                  category={category}
+                  onPress={() => handleCategoryPress(category)}
+                />
+              ))}
+            </View>
+          ) : (
+            <DonutChart categories={dynamicCategories} />
+          )}
         </View>
 
         {/* 활동시간 히트맵 (주석처리로 숨기기 가능 - ActivityHeatmap 컴포넌트) */}
@@ -698,6 +806,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.neutral[700],
     marginBottom: spacing.md,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.md,
+    padding: 2,
+  },
+  toggleButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md - 2,
+  },
+  toggleButtonActive: {
+    backgroundColor: colors.white,
+  },
+  toggleText: {
+    fontSize: fontSize.xs,
+    color: colors.neutral[500],
+    fontWeight: '500',
+  },
+  toggleTextActive: {
+    color: colors.neutral[800],
+    fontWeight: '600',
   },
   statsGrid: {
     flexDirection: 'row',
