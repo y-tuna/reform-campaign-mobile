@@ -40,14 +40,10 @@ import {
 
 // 색상 옵션
 const colorOptions = [
-  '#818CF8', // indigo
   '#F87171', // red
-  '#34D399', // green (checked)
-  '#FBBF24', // yellow
   '#60A5FA', // blue
-  '#F472B6', // pink
-  '#2DD4BF', // teal
-  '#94A3B8', // gray
+  '#FBBF24', // amber
+  '#818CF8', // indigo
 ]
 
 // POI 카테고리 타입
@@ -143,7 +139,7 @@ const aiCategoryInfo: { key: AiCategory; label: string; color: string; icon: Rea
   { key: 'shop', label: '상권', color: '#F97316', icon: ShopIcon },
   { key: 'park', label: '공원', color: '#16A34A', icon: ParkIcon },
   { key: 'culture', label: '문화시설', color: '#EC4899', icon: CultureIcon },
-  { key: 'religious', label: '종교시설', color: '#8B5CF6', icon: ReligiousIcon },
+  { key: 'religious', label: '종교시설', color: '#92400E', icon: ReligiousIcon },
   { key: 'public', label: '공공시설', color: '#0EA5E9', icon: PublicIcon },
 ]
 
@@ -182,7 +178,7 @@ const aiPOIPool: Record<AiCategory, { name: string; type: POIType; lat: number; 
 const poiTypeLabel: Record<POIType | 'manual', string> = {
   subway: '대중교통',
   bus: '대중교통',
-  market: '시장',
+  market: '상권',
   school: '학교',
   facility: '공원',
   religious: '종교시설',
@@ -246,7 +242,16 @@ function ScheduleCard({
   const isManual = schedule.isManual
 
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.card, isManual && { flexDirection: 'row', padding: 0, overflow: 'hidden' }]}
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
+      {/* 수동 일정 왼쪽 색상 바 */}
+      {isManual && (
+        <View style={{ width: 5, backgroundColor: schedule.color || '#6B7280', borderTopLeftRadius: borderRadius.lg, borderBottomLeftRadius: borderRadius.lg }} />
+      )}
+      <View style={isManual ? { flex: 1, padding: spacing.md } : { flex: 1 }}>
       <View style={styles.cardHeader}>
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{schedule.startTime}</Text>
@@ -254,13 +259,13 @@ function ScheduleCard({
             <View
               style={[
                 styles.poiTypeBadge,
-                { backgroundColor: (schedule.color || '#6B7280') + '20' },
+                { backgroundColor: '#6B728020' },
               ]}
             >
               <Text
                 style={[
                   styles.poiTypeText,
-                  { color: schedule.color || '#6B7280' },
+                  { color: '#6B7280' },
                 ]}
               >
                 직접추가
@@ -341,6 +346,7 @@ function ScheduleCard({
       {isManual && schedule.memo && (
         <Text style={styles.memoText}>{schedule.memo}</Text>
       )}
+      </View>
     </TouchableOpacity>
   )
 }
@@ -376,7 +382,7 @@ function AiRecommendModal({
           <Text style={aiModalStyles.desc}>
             지금 어디를 가야할지 모르겠다면?{'\n'}
             방문하고 싶은 장소 카테고리를 선택해주시면{'\n'}
-            추천일정이 생성됩니다.
+            지금부터 2시간의 추천일정이 생성됩니다.
           </Text>
 
           <View style={aiModalStyles.categoryGrid}>
@@ -508,6 +514,139 @@ const aiModalStyles = StyleSheet.create({
   },
 })
 
+// 시간 선택 인라인 컴포넌트
+const TIME_HOURS = Array.from({ length: 18 }, (_, i) => String(i + 6).padStart(2, '0')) // 06~23
+const TIME_MINUTES = ['00', '30']
+
+function TimePickerInline({
+  value,
+  onSelect,
+  onClose,
+}: {
+  value: string
+  onSelect: (time: string) => void
+  onClose: () => void
+}) {
+  const [h, m] = value.split(':')
+  const [selectedHour, setSelectedHour] = useState(h)
+  const [selectedMinute, setSelectedMinute] = useState(TIME_MINUTES.includes(m) ? m : '00')
+
+  return (
+    <View style={timePickerStyles.container}>
+      <View style={timePickerStyles.header}>
+        <Text style={timePickerStyles.title}>시간 선택</Text>
+        <TouchableOpacity onPress={onClose}>
+          <Text style={timePickerStyles.cancelText}>취소</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={timePickerStyles.sectionLabel}>시</Text>
+      <View style={timePickerStyles.grid}>
+        {TIME_HOURS.map((hour) => (
+          <TouchableOpacity
+            key={hour}
+            style={[timePickerStyles.cell, selectedHour === hour && timePickerStyles.cellActive]}
+            onPress={() => setSelectedHour(hour)}
+          >
+            <Text style={[timePickerStyles.cellText, selectedHour === hour && timePickerStyles.cellTextActive]}>
+              {hour}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={timePickerStyles.sectionLabel}>분</Text>
+      <View style={timePickerStyles.grid}>
+        {TIME_MINUTES.map((minute) => (
+          <TouchableOpacity
+            key={minute}
+            style={[timePickerStyles.cell, selectedMinute === minute && timePickerStyles.cellActive]}
+            onPress={() => setSelectedMinute(minute)}
+          >
+            <Text style={[timePickerStyles.cellText, selectedMinute === minute && timePickerStyles.cellTextActive]}>
+              {minute}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <TouchableOpacity
+        style={timePickerStyles.confirmBtn}
+        onPress={() => onSelect(`${selectedHour}:${selectedMinute}`)}
+      >
+        <Text style={timePickerStyles.confirmText}>{selectedHour}:{selectedMinute} 선택</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+const timePickerStyles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.neutral[50],
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  title: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.neutral[800],
+  },
+  cancelText: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[400],
+  },
+  sectionLabel: {
+    fontSize: fontSize.xs,
+    color: colors.neutral[500],
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  cell: {
+    width: 44,
+    height: 36,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+  },
+  cellActive: {
+    backgroundColor: colors.primary[500],
+    borderColor: colors.primary[500],
+  },
+  cellText: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[700],
+  },
+  cellTextActive: {
+    color: colors.white,
+    fontWeight: '600',
+  },
+  confirmBtn: {
+    marginTop: spacing.md,
+    backgroundColor: colors.primary[500],
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+  },
+  confirmText: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.white,
+  },
+})
+
 // 직접 일정 추가 모달 컴포넌트
 function AddScheduleModal({
   visible,
@@ -531,8 +670,9 @@ function AddScheduleModal({
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; address: string } | null>(null)
-  const [selectedColor, setSelectedColor] = useState(colorOptions[2])
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [memo, setMemo] = useState('')
+  const [timePickerTarget, setTimePickerTarget] = useState<'start' | 'end' | null>(null)
 
   const formatDate = (d: Date) => {
     return `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`
@@ -612,19 +752,32 @@ function AddScheduleModal({
             <View style={addModalStyles.timeRow}>
               <View style={addModalStyles.timeField}>
                 <Text style={addModalStyles.label}>시작 <Text style={addModalStyles.required}>*</Text></Text>
-                <TouchableOpacity style={addModalStyles.inputRow}>
-                  <Text style={addModalStyles.inputText}>오전 {startTime}</Text>
+                <TouchableOpacity style={addModalStyles.inputRow} onPress={() => setTimePickerTarget('start')}>
+                  <Text style={addModalStyles.inputText}>{startTime}</Text>
                   <ClockIcon size={20} color={colors.neutral[400]} />
                 </TouchableOpacity>
               </View>
               <View style={addModalStyles.timeField}>
                 <Text style={addModalStyles.label}>종료 <Text style={addModalStyles.required}>*</Text></Text>
-                <TouchableOpacity style={addModalStyles.inputRow}>
-                  <Text style={addModalStyles.inputText}>오전 {endTime}</Text>
+                <TouchableOpacity style={addModalStyles.inputRow} onPress={() => setTimePickerTarget('end')}>
+                  <Text style={addModalStyles.inputText}>{endTime}</Text>
                   <ClockIcon size={20} color={colors.neutral[400]} />
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* 시간 선택 */}
+            {timePickerTarget && (
+              <TimePickerInline
+                value={timePickerTarget === 'start' ? startTime : endTime}
+                onSelect={(time) => {
+                  if (timePickerTarget === 'start') setStartTime(time)
+                  else setEndTime(time)
+                  setTimePickerTarget(null)
+                }}
+                onClose={() => setTimePickerTarget(null)}
+              />
+            )}
 
             {/* 장소 */}
             <View style={addModalStyles.fieldGroup}>
@@ -734,8 +887,9 @@ function EditScheduleModal({
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; address: string } | null>(null)
-  const [selectedColor, setSelectedColor] = useState(colorOptions[2])
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [memo, setMemo] = useState('')
+  const [timePickerTarget, setTimePickerTarget] = useState<'start' | 'end' | null>(null)
 
   // 스케줄 데이터로 폼 초기화
   useEffect(() => {
@@ -826,19 +980,32 @@ function EditScheduleModal({
             <View style={addModalStyles.timeRow}>
               <View style={addModalStyles.timeField}>
                 <Text style={addModalStyles.label}>시작 <Text style={addModalStyles.required}>*</Text></Text>
-                <TouchableOpacity style={addModalStyles.inputRow}>
+                <TouchableOpacity style={addModalStyles.inputRow} onPress={() => setTimePickerTarget('start')}>
                   <Text style={addModalStyles.inputText}>{startTime}</Text>
                   <ClockIcon size={20} color={colors.neutral[400]} />
                 </TouchableOpacity>
               </View>
               <View style={addModalStyles.timeField}>
                 <Text style={addModalStyles.label}>종료 <Text style={addModalStyles.required}>*</Text></Text>
-                <TouchableOpacity style={addModalStyles.inputRow}>
+                <TouchableOpacity style={addModalStyles.inputRow} onPress={() => setTimePickerTarget('end')}>
                   <Text style={addModalStyles.inputText}>{endTime}</Text>
                   <ClockIcon size={20} color={colors.neutral[400]} />
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* 시간 선택 */}
+            {timePickerTarget && (
+              <TimePickerInline
+                value={timePickerTarget === 'start' ? startTime : endTime}
+                onSelect={(time) => {
+                  if (timePickerTarget === 'start') setStartTime(time)
+                  else setEndTime(time)
+                  setTimePickerTarget(null)
+                }}
+                onClose={() => setTimePickerTarget(null)}
+              />
+            )}
 
             {/* 장소 */}
             <View style={addModalStyles.fieldGroup}>
@@ -938,6 +1105,9 @@ export default function HomeScreen() {
   const fontScale = useSettingsStore((state) => state.fontScale)
   const isLargeFontMode = fontScale >= 1.2
 
+  // 알림 생성
+  const addNotification = useSettingsStore((state) => state.addNotification)
+
   // AI 쿨타임 상태
   const aiCooldownStart = useSettingsStore((state) => state.aiCooldownStart)
   const aiUsedCount = useSettingsStore((state) => state.aiUsedCount)
@@ -1019,7 +1189,9 @@ export default function HomeScreen() {
         id: `poi-${ms.id}`,
         name: ms.location?.name || '', // 장소명
         type: 'other' as POIType,
-        location: { lat: 0, lng: 0 },
+        location: ms.location?.name === '나이키 강남점'
+          ? { lat: 37.4979, lng: 127.0283 }
+          : { lat: 0, lng: 0 },
         baseExposure: 0,
         timeWeights: { morning: 1, noon: 1, evening: 1 },
         accessibility: 1,
@@ -1041,6 +1213,20 @@ export default function HomeScreen() {
   const allSchedules = useMemo(() => {
     return [...mockSchedules, ...aiGeneratedSchedules, ...convertedManualSchedules]
   }, [convertedManualSchedules, aiGeneratedSchedules])
+
+  // GPS 인증 알림 생성 (데모: 마운트 시 각 일정별 3회 알림)
+  useEffect(() => {
+    mockSchedules.forEach(schedule => {
+      for (let i = 0; i < 3; i++) {
+        addNotification({
+          title: '유세 위치 인증',
+          message: `${schedule.poi.name} 일정을 소화 중이신가요? 위치 인증을 진행해주세요. (${i + 1}/3)`,
+          type: 'gps_verify',
+        })
+      }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 큰 글씨 모드: 완전히 다른 UI 렌더링
   if (isLargeFontMode) {
@@ -1182,7 +1368,7 @@ export default function HomeScreen() {
             />
             <FilterChip
               label="종교시설"
-              icon={<ReligiousIcon size={16} color={selectedPOI === 'religious' ? '#FFF' : '#8B5CF6'} />}
+              icon={<ReligiousIcon size={16} color={selectedPOI === 'religious' ? '#FFF' : '#92400E'} />}
               selected={selectedPOI === 'religious'}
               onPress={() => setSelectedPOI('religious')}
             />
@@ -1268,6 +1454,15 @@ export default function HomeScreen() {
               <Text style={styles.emptyText}>해당 조건의 일정이 없습니다</Text>
             </View>
           )}
+
+          {/* 일정 직접 추가 버튼 (리스트 하단) */}
+          <TouchableOpacity
+            style={styles.bottomAddButton}
+            onPress={() => setAddModalVisible(true)}
+          >
+            <ManualAddIcon size={16} color="#6B7280" />
+            <Text style={styles.bottomAddButtonText}>일정 직접 추가</Text>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -1490,6 +1685,25 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: fontSize.md,
     color: colors.neutral[400],
+  },
+  bottomAddButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    borderStyle: 'dashed',
+    backgroundColor: colors.neutral[50],
+  },
+  bottomAddButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: '#6B7280',
   },
   headerTopRow: {
     flexDirection: 'row',

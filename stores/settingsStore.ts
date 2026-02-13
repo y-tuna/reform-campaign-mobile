@@ -7,7 +7,7 @@ export interface Notification {
   id: string
   title: string
   message: string
-  type: 'schedule' | 'system' | 'campaign' | 'alert'
+  type: 'schedule' | 'system' | 'gps_verify'
   isRead: boolean
   createdAt: string
 }
@@ -87,9 +87,9 @@ export const useSettingsStore = create<SettingsState>()(
         },
         {
           id: 'notif-3',
-          title: '캠페인 알림',
-          message: '이번 주 봉사자 모집이 시작되었습니다.',
-          type: 'campaign',
+          title: '유세 위치 인증',
+          message: '강남역 3번출구 일정 인증 시간입니다. 위치 인증을 진행해주세요.',
+          type: 'gps_verify',
           isRead: true,
           createdAt: new Date(Date.now() - 86400000).toISOString(),
         },

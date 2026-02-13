@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Image,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Svg, { Path } from 'react-native-svg'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { MobilityType, IntensityLevel } from '../types'
 import {
@@ -20,7 +20,22 @@ import {
 } from '../components/icons'
 import { useSettingsStore } from '../stores'
 
-const ReformLogo = require('../assets/reform-party-logo.png')
+function ReformSymbol({ size = 80 }: { size?: number }) {
+  const ratio = 116 / 78
+  const w = size * ratio
+  return (
+    <Svg width={w} height={size} viewBox="0 0 116 78" fill="none">
+      <Path
+        d="M43.1953 5.96484L5.96625 43.1938C-1.98875 51.1488-1.98875 64.0458 5.96625 72.0008C13.9212 79.9558 26.8183 79.9558 34.7733 72.0008L57.5993 49.1758L43.1953 34.7718C35.2403 26.8168 35.2403 13.9198 43.1953 5.96484Z"
+        fill="#ED6C00"
+      />
+      <Path
+        d="M109.232 43.1952L72.0028 5.96625C64.0478-1.98875 51.1498-1.98875 43.1948 5.96625C35.2398 13.9212 35.2398 26.8183 43.1948 34.7733L57.5988 49.1772L80.4238 72.0023C88.3788 79.9573 101.277 79.9573 109.232 72.0023C117.187 64.0473 117.187 51.1502 109.232 43.1952Z"
+        fill="#EA5514"
+      />
+    </Svg>
+  )
+}
 
 const STEPS = ['캠페인 설정', '화면 설정', '완료']
 
@@ -334,7 +349,9 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
         return (
           <View style={styles.stepContent}>
             <View style={styles.completeContainer}>
-              <Image source={ReformLogo} style={styles.completeLogo} resizeMode="contain" />
+              <View style={styles.logoWrapper}>
+                <ReformSymbol size={80} />
+              </View>
               <Text style={styles.completeTitle}>설정 완료!</Text>
               <Text style={styles.completeDescription}>
                 모든 설정이 완료되었습니다.{'\n'}
@@ -356,23 +373,29 @@ export default function OnboardingScreen({ onComplete, onBack }: OnboardingScree
                   <Text style={styles.summaryValue}>기초의원</Text>
                 </View>
                 <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>스케줄 강도</Text>
+                  <Text style={styles.summaryValue}>
+                    {intensityOptions.find((o) => o.value === intensity)?.label}
+                  </Text>
+                </View>
+                <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>이동 수단</Text>
                   <Text style={styles.summaryValue}>
                     {mobilityOptions.find((o) => o.value === mobility)?.label}
                   </Text>
                 </View>
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>스케줄 강도</Text>
+                  <Text style={styles.summaryLabel}>종교 시설</Text>
                   <Text style={styles.summaryValue}>
-                    {intensityOptions.find((o) => o.value === intensity)?.label}
+                    {religionOptions.find((o) => o.value === religionExclude)?.label}
                   </Text>
                 </View>
-                {isSeniorMode && (
-                  <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>큰 글씨 모드</Text>
-                    <Text style={styles.summaryValue}>활성화</Text>
-                  </View>
-                )}
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>글씨 크기</Text>
+                  <Text style={styles.summaryValue}>
+                    {fontScale === 1.0 ? '보통' : fontScale === 1.2 ? '크게' : '매우 크게'}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -660,9 +683,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: spacing.xl,
   },
-  completeLogo: {
-    width: 150,
-    height: 100,
+  logoWrapper: {
     marginBottom: spacing.md,
   },
   completeTitle: {

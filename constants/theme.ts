@@ -89,7 +89,7 @@ export const colors = {
     market: '#F97316', // Primary orange
     school: '#7C3AED',
     facility: '#0EA5E9',
-    religious: '#DB2777',
+    religious: '#92400E',
     other: '#6B7280',
   },
 

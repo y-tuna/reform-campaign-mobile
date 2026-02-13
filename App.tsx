@@ -73,6 +73,7 @@ function MainTabs() {
           ),
         }}
       />
+      {/* 알림 탭 숨김 (추후 활성화 가능)
       <Tab.Screen
         name="Notifications"
         component={NotificationsScreen}
@@ -83,6 +84,7 @@ function MainTabs() {
           ),
         }}
       />
+      */}
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

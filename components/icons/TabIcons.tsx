@@ -542,7 +542,7 @@ export function CultureIcon({ size = 24, color = '#EC4899' }: IconProps) {
 }
 
 // 종교시설 아이콘 (교회/사원)
-export function ReligiousIcon({ size = 24, color = '#8B5CF6' }: IconProps) {
+export function ReligiousIcon({ size = 24, color = '#92400E' }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M12 2V6" stroke={color} strokeWidth={1.5} strokeLinecap="round" />

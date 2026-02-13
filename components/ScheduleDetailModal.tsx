@@ -30,9 +30,9 @@ import {
 const TEXTS = {
   autoScheduleNote: 'AI로 생성된 일정은 수정 및 삭제가 불가능합니다.',
   verifyLocationTitle: '위치 인증',
-  verifyLocationDesc: '현재 위치가 일정 장소 1km 이내인지 확인합니다.',
+  verifyLocationDesc: '현재 위치가 일정 장소 500m 이내인지 확인합니다.',
   verifySuccess: '위치 인증 완료! 방문이 기록되었습니다.',
-  verifyFail: '현재 위치가 일정 장소와 1km 이상 떨어져 있습니다.',
+  verifyFail: '현재 위치가 일정 장소와 500m 이상 떨어져 있습니다.',
   verifyError: '위치 정보를 가져올 수 없습니다. GPS를 확인해주세요.',
   deleteConfirm: '이 일정을 삭제하시겠습니까?',
   directions: '길찾기',
@@ -64,7 +64,7 @@ function getTimeSlot(time: string): 'morning' | 'noon' | 'evening' | 'night' {
 const poiTypeLabel: Record<POIType | 'manual', string> = {
   subway: '대중교통',
   bus: '대중교통',
-  market: '시장',
+  market: '상권',
   school: '학교',
   facility: '공원',
   religious: '종교시설',
@@ -104,6 +104,7 @@ export default function ScheduleDetailModal({
   onVerifyLocation,
 }: ScheduleDetailModalProps) {
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isVerified, setIsVerified] = useState(false)
 
   if (!schedule) return null
 
@@ -137,6 +138,15 @@ export default function ScheduleDetailModal({
     setIsVerifying(true)
 
     try {
+      // 데브 모드: 나이키 강남점은 무조건 성공
+      if (schedule.poi.name === '나이키 강남점') {
+        setIsVerifying(false)
+        setIsVerified(true)
+        Alert.alert('성공', TEXTS.verifySuccess)
+        onVerifyLocation?.(schedule.id, true)
+        return
+      }
+
       // Web에서는 Geolocation API 사용
       if (typeof navigator !== 'undefined' && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -150,14 +160,15 @@ export default function ScheduleDetailModal({
 
             setIsVerifying(false)
 
-            if (distance <= 1) {
-              // 1km 이내
+            if (distance <= 0.5) {
+              // 500m 이내
+              setIsVerified(true)
               Alert.alert('성공', TEXTS.verifySuccess)
               onVerifyLocation?.(schedule.id, true)
             } else {
               Alert.alert(
                 '실패',
-                `${TEXTS.verifyFail}\n(현재 거리: ${distance.toFixed(2)}km)`
+                `${TEXTS.verifyFail}\n(현재 거리: ${(distance * 1000).toFixed(0)}m)`
               )
               onVerifyLocation?.(schedule.id, false)
             }
@@ -171,6 +182,7 @@ export default function ScheduleDetailModal({
       } else {
         // Mock for testing (웹에서 GPS 없을 때)
         setIsVerifying(false)
+        setIsVerified(true)
         Alert.alert('테스트', '위치 인증 기능은 실제 기기에서 동작합니다.\n(테스트 환경에서는 자동으로 인증됩니다.)')
         onVerifyLocation?.(schedule.id, true)
       }
@@ -285,13 +297,13 @@ export default function ScheduleDetailModal({
             <View
               style={[
                 styles.categoryBadge,
-                { backgroundColor: (isManual ? schedule.color : colors.poi[poiType]) + '20' },
+                { backgroundColor: (isManual ? '#6B7280' : colors.poi[poiType]) + '20' },
               ]}
             >
               <Text
                 style={[
                   styles.categoryBadgeText,
-                  { color: isManual ? schedule.color : colors.poi[poiType] },
+                  { color: isManual ? '#6B7280' : colors.poi[poiType] },
                 ]}
               >
                 {poiTypeLabel[poiType]}
@@ -331,13 +343,13 @@ export default function ScheduleDetailModal({
               <Text style={styles.directionsButtonText}>{TEXTS.directions}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.verifyButton, isVerifying && styles.verifyButtonDisabled]}
+              style={[styles.verifyButton, (isVerifying || isVerified) && styles.verifyButtonDisabled]}
               onPress={handleVerifyLocation}
-              disabled={isVerifying}
+              disabled={isVerifying || isVerified}
             >
               <GpsIcon size={18} color={colors.white} />
               <Text style={styles.verifyButtonText}>
-                {isVerifying ? '확인 중...' : TEXTS.verify}
+                {isVerified ? '인증 완료' : isVerifying ? '확인 중...' : TEXTS.verify}
               </Text>
             </TouchableOpacity>
           </View>

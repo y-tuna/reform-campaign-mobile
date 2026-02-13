@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList, Image } from 'react-native'
-import Svg, { Circle as SvgCircle } from 'react-native-svg'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { POIType } from '../types'
@@ -34,8 +33,8 @@ const categories: CategoryInfo[] = [
   { key: 'shop', label: '상권', icon: ShopIcon, color: '#F97316', visitRate: 28 },
   { key: 'park', label: '공원', icon: ParkIcon, color: '#16A34A', visitRate: 22 },
   { key: 'culture', label: '문화시설', icon: CultureIcon, color: '#EC4899', visitRate: 15 },
-  { key: 'religious', label: '종교시설', icon: ReligiousIcon, color: '#8B5CF6', visitRate: 18 },
-  { key: 'public', label: '공공시설', icon: PublicIcon, color: '#0EA5E9', visitRate: 12 },
+  { key: 'religious', label: '종교시설', icon: ReligiousIcon, color: '#92400E', visitRate: 18 },
+  { key: 'public', label: '공공시설', icon: PublicIcon, color: '#6366F1', visitRate: 12 },
   { key: 'manual', label: '직접추가', icon: ManualAddIcon, color: '#6B7280', visitRate: 8 },
 ]
 
@@ -158,17 +157,20 @@ function generateHeatmapData(): { date: string; hours: number; schedules: number
     let schedules = 0
 
     if (random > 0.3) { // 70% 확률로 활동 있음
-      if (random > 0.9) {
-        hours = Math.floor(Math.random() * 3) + 6 // 6-8시간
+      if (random > 0.95) {
+        hours = Math.floor(Math.random() * 5) + 20 // 20-24시간
+        schedules = Math.floor(Math.random() * 3) + 6 // 6-8개
+      } else if (random > 0.88) {
+        hours = Math.floor(Math.random() * 5) + 15 // 15-19시간
+        schedules = Math.floor(Math.random() * 3) + 5 // 5-7개
+      } else if (random > 0.78) {
+        hours = Math.floor(Math.random() * 5) + 10 // 10-14시간
         schedules = Math.floor(Math.random() * 3) + 4 // 4-6개
-      } else if (random > 0.7) {
-        hours = Math.floor(Math.random() * 2) + 4 // 4-5시간
+      } else if (random > 0.6) {
+        hours = Math.floor(Math.random() * 5) + 5 // 5-9시간
         schedules = Math.floor(Math.random() * 2) + 3 // 3-4개
-      } else if (random > 0.5) {
-        hours = Math.floor(Math.random() * 2) + 2 // 2-3시간
-        schedules = Math.floor(Math.random() * 2) + 2 // 2-3개
       } else {
-        hours = Math.floor(Math.random() * 2) + 1 // 1-2시간
+        hours = Math.floor(Math.random() * 4) + 1 // 1-4시간
         schedules = Math.floor(Math.random() * 2) + 1 // 1-2개
       }
     }
@@ -193,14 +195,14 @@ const heatmapStats = {
   totalSchedules: heatmapData.reduce((acc, d) => acc + d.schedules, 0),
 }
 
-// 활동 시간에 따른 색상 반환
+// 활동 시간에 따른 색상 반환 (6단계)
 function getHeatmapColor(hours: number): string {
-  if (hours === 0) return colors.neutral[100]
-  if (hours <= 1) return '#BBF7D0' // green-200
-  if (hours <= 2) return '#86EFAC' // green-300
-  if (hours <= 4) return '#4ADE80' // green-400
-  if (hours <= 6) return '#22C55E' // green-500
-  return '#16A34A' // green-600
+  if (hours === 0) return colors.neutral[100]       // 0시간
+  if (hours < 5) return '#BBF7D0'                    // 5시간 미만
+  if (hours < 10) return '#86EFAC'                   // 5~10시간 미만
+  if (hours < 15) return '#4ADE80'                   // 10~15시간 미만
+  if (hours < 20) return '#22C55E'                   // 15~20시간 미만
+  return '#16A34A'                                    // 20시간 이상
 }
 
 // 히트맵을 GitHub 스타일로 그룹화 (주 단위 컬럼, 요일 행)
@@ -284,15 +286,20 @@ function ActivityHeatmap() {
       </View>
 
       {/* 범례 */}
-      <View style={heatmapStyles.legend}>
-        <Text style={heatmapStyles.legendText}>적음</Text>
-        <View style={[heatmapStyles.legendCell, { backgroundColor: colors.neutral[100] }]} />
-        <View style={[heatmapStyles.legendCell, { backgroundColor: '#BBF7D0' }]} />
-        <View style={[heatmapStyles.legendCell, { backgroundColor: '#86EFAC' }]} />
-        <View style={[heatmapStyles.legendCell, { backgroundColor: '#4ADE80' }]} />
-        <View style={[heatmapStyles.legendCell, { backgroundColor: '#22C55E' }]} />
-        <View style={[heatmapStyles.legendCell, { backgroundColor: '#16A34A' }]} />
-        <Text style={heatmapStyles.legendText}>많음</Text>
+      <View style={heatmapStyles.legendContainer}>
+        {[
+          { color: colors.neutral[100], label: '0h' },
+          { color: '#BBF7D0', label: '<5h' },
+          { color: '#86EFAC', label: '5-10h' },
+          { color: '#4ADE80', label: '10-15h' },
+          { color: '#22C55E', label: '15-20h' },
+          { color: '#16A34A', label: '20h+' },
+        ].map((item) => (
+          <View key={item.label} style={heatmapStyles.legendItem}>
+            <View style={[heatmapStyles.legendCell, { backgroundColor: item.color }]} />
+            <Text style={heatmapStyles.legendLabel}>{item.label}</Text>
+          </View>
+        ))}
       </View>
     </View>
   )
@@ -337,15 +344,20 @@ const heatmapStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  legend: {
+  legendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
     marginTop: spacing.md,
-    gap: 4,
+    gap: 8,
   },
-  legendText: {
-    fontSize: fontSize.xs,
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  legendLabel: {
+    fontSize: 10,
     color: colors.neutral[500],
   },
   legendCell: {
@@ -434,75 +446,59 @@ function CategoryCard({
   )
 }
 
-function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
-  const size = 200
-  const strokeWidth = 32
-  const radius = (size - strokeWidth) / 2
-  const center = size / 2
-  const circumference = 2 * Math.PI * radius
-
+function ProportionView({
+  categories: cats,
+  onCategoryPress,
+}: {
+  categories: CategoryInfo[]
+  onCategoryPress: (cat: CategoryInfo) => void
+}) {
   const totalRate = cats.reduce((sum, cat) => sum + cat.visitRate, 0)
-
-  // Build segments using strokeDasharray on Circle
-  let cumulativeOffset = 0
-
-  const segments = cats.map((cat) => {
-    const proportion = totalRate > 0 ? cat.visitRate / totalRate : 0
-    const segLength = proportion * circumference
-    const offset = cumulativeOffset
-    cumulativeOffset += segLength
-    return { ...cat, segLength, offset, proportion }
-  })
-
-  // 각 세그먼트의 중심 각도 계산 → 범례 위치 결정
-  const labelRadius = radius + strokeWidth / 2 + 40
-  const labels = segments.map((seg) => {
-    const midOffset = seg.offset + seg.segLength / 2
-    const midAngle = ((midOffset / circumference) * 360 - 90) * (Math.PI / 180)
-    const x = center + labelRadius * Math.cos(midAngle)
-    const y = center + labelRadius * Math.sin(midAngle)
-    const percentage = totalRate > 0 ? Math.round((seg.visitRate / totalRate) * 100) : 0
-    return { ...seg, x, y, percentage }
-  })
-
-  const outerSize = size + 120
+  const topCat = cats.reduce((a, b) => (a.visitRate > b.visitRate ? a : b))
 
   return (
-    <View style={donutStyles.container}>
-      <View style={[donutStyles.chartWrapper, { width: outerSize, height: outerSize }]}>
-        <Svg width={outerSize} height={outerSize} viewBox={`0 0 ${outerSize} ${outerSize}`}>
-          {segments.map((seg) => (
-            <SvgCircle
-              key={seg.key}
-              cx={outerSize / 2}
-              cy={outerSize / 2}
-              r={radius}
-              stroke={seg.color + '55'}
-              strokeWidth={strokeWidth}
-              fill="none"
-              strokeDasharray={`${seg.segLength} ${circumference - seg.segLength}`}
-              strokeDashoffset={-(seg.offset - circumference * 0.25)}
-              strokeLinecap="butt"
-            />
-          ))}
-        </Svg>
-        {/* 범례를 각 세그먼트 옆에 absolute 배치 */}
-        {labels.map((lbl) => {
-          const IconComponent = lbl.icon
-          const offsetX = outerSize / 2 - center
+    <View>
+      {/* 비율 막대 그래프 */}
+      <View style={proportionStyles.barContainer}>
+        {cats.map((cat) => {
+          const pct = totalRate > 0 ? (cat.visitRate / totalRate) * 100 : 0
+          if (pct <= 0) return null
           return (
             <View
-              key={`label-${lbl.key}`}
-              style={[
-                donutStyles.labelItem,
-                { left: lbl.x + offsetX - 30, top: lbl.y + offsetX - 10 },
-              ]}
+              key={cat.key}
+              style={{ width: `${pct}%`, height: 20, backgroundColor: cat.color + '55' }}
+            />
+          )
+        })}
+      </View>
+
+      {/* 캡션 */}
+      <Text style={proportionStyles.caption}>
+        후보님은{' '}
+        <Text style={{ color: topCat.color, fontWeight: '700' }}>{topCat.label}</Text>
+        {' '}카테고리를 가장 많이 방문하였습니다.
+      </Text>
+
+      {/* 카테고리 카드 */}
+      <View style={styles.categoryCardGrid}>
+        {cats.map((cat) => {
+          const pct = totalRate > 0 ? Math.round((cat.visitRate / totalRate) * 100) : 0
+          const IconComponent = cat.icon
+          return (
+            <TouchableOpacity
+              key={cat.key}
+              style={styles.categoryCard}
+              onPress={() => onCategoryPress(cat)}
+              activeOpacity={0.7}
             >
-              <IconComponent size={12} color={lbl.color} />
-              <Text style={[donutStyles.labelText, { color: lbl.color }]}>
-                {lbl.percentage}%
+              <View style={[styles.categoryIconWrapper, { backgroundColor: cat.color + '20' }]}>
+                <IconComponent size={24} color={cat.color} />
+              </View>
+              <Text style={styles.categoryCardLabel}>{cat.label}</Text>
+              <Text style={[styles.categoryCardRate, { color: cat.color }]}>
+                {pct}%
               </Text>
-            </View>
+            </TouchableOpacity>
           )
         })}
       </View>
@@ -510,25 +506,18 @@ function DonutChart({ categories: cats }: { categories: CategoryInfo[] }) {
   )
 }
 
-const donutStyles = StyleSheet.create({
-  container: {
-    marginTop: spacing.sm,
-    alignItems: 'center',
-  },
-  chartWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  labelItem: {
-    position: 'absolute',
+const proportionStyles = StyleSheet.create({
+  barContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
+    height: 20,
+    borderRadius: borderRadius.full,
+    overflow: 'hidden',
   },
-  labelText: {
-    fontSize: 11,
-    fontWeight: '600',
+  caption: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[600],
+    marginTop: spacing.md,
+    textAlign: 'center',
   },
 })
 
@@ -630,7 +619,7 @@ export default function DashboardScreen() {
                 onPress={() => setVisitRateView('cards')}
               >
                 <Text style={[styles.toggleText, visitRateView === 'cards' && styles.toggleTextActive]}>
-                  카드
+                  개별
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -638,36 +627,37 @@ export default function DashboardScreen() {
                 onPress={() => setVisitRateView('chart')}
               >
                 <Text style={[styles.toggleText, visitRateView === 'chart' && styles.toggleTextActive]}>
-                  차트
+                  비율
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.overallProgressContainer}>
-            <View style={styles.overallProgressBar}>
-              <View
-                style={[
-                  styles.overallProgressFill,
-                  { width: `${mockStats.overallVisitRate}%` },
-                ]}
-              />
-            </View>
-            <Text style={styles.overallProgressText}>{mockStats.overallVisitRate}%</Text>
-          </View>
-
           {visitRateView === 'cards' ? (
-            <View style={styles.categoryCardGrid}>
-              {dynamicCategories.map((category) => (
-                <CategoryCard
-                  key={category.key}
-                  category={category}
-                  onPress={() => handleCategoryPress(category)}
-                />
-              ))}
-            </View>
+            <>
+              <View style={styles.overallProgressContainer}>
+                <View style={styles.overallProgressBar}>
+                  <View
+                    style={[
+                      styles.overallProgressFill,
+                      { width: `${mockStats.overallVisitRate}%` },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.overallProgressText}>{mockStats.overallVisitRate}%</Text>
+              </View>
+              <View style={styles.categoryCardGrid}>
+                {dynamicCategories.map((category) => (
+                  <CategoryCard
+                    key={category.key}
+                    category={category}
+                    onPress={() => handleCategoryPress(category)}
+                  />
+                ))}
+              </View>
+            </>
           ) : (
-            <DonutChart categories={dynamicCategories} />
+            <ProportionView categories={dynamicCategories} onCategoryPress={handleCategoryPress} />
           )}
         </View>
 

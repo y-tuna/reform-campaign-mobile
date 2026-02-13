@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { useSettingsStore, Notification } from '../stores'
-import { CalendarIcon, AnnouncementIcon, AlertIcon, InfoIcon } from './icons'
+import { CalendarIcon, InfoIcon, GpsIcon } from './icons'
 
 interface NotificationDrawerProps {
   visible: boolean
@@ -27,10 +27,8 @@ function NotificationItem({ notification }: { notification: Notification }) {
         return <CalendarIcon size={20} color={colors.primary[500]} />
       case 'system':
         return <InfoIcon size={20} color={colors.neutral[500]} />
-      case 'campaign':
-        return <AnnouncementIcon size={20} color={colors.success[500]} />
-      case 'alert':
-        return <AlertIcon size={20} color={colors.error[500]} />
+      case 'gps_verify':
+        return <GpsIcon size={20} color={colors.success[500]} />
       default:
         return <InfoIcon size={20} color={colors.neutral[500]} />
     }
