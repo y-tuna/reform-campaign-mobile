@@ -648,6 +648,18 @@ export function GpsIcon({ size = 24, color = '#0891B2' }: IconProps) {
   )
 }
 
+// 개혁신당 심볼 로고 (상향 화살표)
+export function ReformSymbolLogo({ size = 24, color = '#F97316' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 158 110" fill="none">
+      <Path
+        d="M79.04 0L0 79.04L30.65 109.69L79.04 61.3L127.43 109.69L158.08 79.04L79.04 0Z"
+        fill={color}
+      />
+    </Svg>
+  )
+}
+
 // 반짝이/스파클 아이콘 (AI 추천일정용)
 export function SparkleIcon({ size = 24, color = '#F97316' }: IconProps) {
   return (

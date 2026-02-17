@@ -524,8 +524,6 @@ const proportionStyles = StyleSheet.create({
 export default function DashboardScreen() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryInfo | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
-  const [visitRateView, setVisitRateView] = useState<'cards' | 'chart'>('cards')
-
   // Manual schedule store
   const { schedules: manualSchedules, visitRecords, getTotalVisitCount } = useManualScheduleStore()
 
@@ -607,58 +605,10 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* 방문 카테고리 */}
+        {/* 카테고리별 방문 비율 */}
         <View style={styles.section}>
-          <View style={styles.sectionTitleRow}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>
-              {visitRateView === 'cards' ? '전체 방문율' : '카테고리별 방문 비율'}
-            </Text>
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[styles.toggleButton, visitRateView === 'cards' && styles.toggleButtonActive]}
-                onPress={() => setVisitRateView('cards')}
-              >
-                <Text style={[styles.toggleText, visitRateView === 'cards' && styles.toggleTextActive]}>
-                  개별
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.toggleButton, visitRateView === 'chart' && styles.toggleButtonActive]}
-                onPress={() => setVisitRateView('chart')}
-              >
-                <Text style={[styles.toggleText, visitRateView === 'chart' && styles.toggleTextActive]}>
-                  비율
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {visitRateView === 'cards' ? (
-            <>
-              <View style={styles.overallProgressContainer}>
-                <View style={styles.overallProgressBar}>
-                  <View
-                    style={[
-                      styles.overallProgressFill,
-                      { width: `${mockStats.overallVisitRate}%` },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.overallProgressText}>{mockStats.overallVisitRate}%</Text>
-              </View>
-              <View style={styles.categoryCardGrid}>
-                {dynamicCategories.map((category) => (
-                  <CategoryCard
-                    key={category.key}
-                    category={category}
-                    onPress={() => handleCategoryPress(category)}
-                  />
-                ))}
-              </View>
-            </>
-          ) : (
-            <ProportionView categories={dynamicCategories} onCategoryPress={handleCategoryPress} />
-          )}
+          <Text style={styles.sectionTitle}>카테고리별 방문 비율</Text>
+          <ProportionView categories={dynamicCategories} onCategoryPress={handleCategoryPress} />
         </View>
 
         {/* 활동시간 히트맵 (주석처리로 숨기기 가능 - ActivityHeatmap 컴포넌트) */}
@@ -712,9 +662,9 @@ export default function DashboardScreen() {
 
                 <View style={styles.modalStats}>
                   <View style={styles.modalStatItem}>
-                    <Text style={styles.modalStatLabel}>방문률</Text>
+                    <Text style={styles.modalStatLabel}>방문 비율</Text>
                     <Text style={[styles.modalStatValue, { color: selectedCategory.color }]}>
-                      {selectedCategory.visitRate}%
+                      {Math.round((selectedCategory.visitRate / dynamicCategories.reduce((sum, cat) => sum + cat.visitRate, 0)) * 100)}%
                     </Text>
                   </View>
                   <View style={styles.modalStatItem}>
@@ -724,11 +674,9 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                   <View style={styles.modalStatItem}>
-                    <Text style={styles.modalStatLabel}>예상 접촉</Text>
+                    <Text style={styles.modalStatLabel}>누적 시간</Text>
                     <Text style={styles.modalStatValue}>
-                      {selectedCategory.key === 'manual'
-                        ? '-'
-                        : `${poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.exposure, 0)}명`}
+                      {(poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.visits, 0) * 1.5).toFixed(1)}시간
                     </Text>
                   </View>
                 </View>
@@ -743,7 +691,7 @@ export default function DashboardScreen() {
                       <View style={styles.poiInfo}>
                         <Text style={styles.poiName}>{item.name}</Text>
                         <Text style={styles.poiMeta}>
-                          방문 {item.visits}회 · 접촉 {selectedCategory.key === 'manual' ? '-' : `${item.exposure}명`}
+                          방문 {item.visits}회 · {(item.visits * 1.5).toFixed(1)}시간
                         </Text>
                       </View>
                     </View>

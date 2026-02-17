@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, fontSize, borderRadius } from '../constants/theme'
 import { ChatMessage } from '../types'
-import { BotIcon, UserIcon, KeyboardIcon } from '../components/icons'
+import { BotIcon, UserIcon, KeyboardIcon, ReformSymbolLogo } from '../components/icons'
 import AppHeader from '../components/AppHeader'
 
 // Mock 대화
@@ -34,8 +33,6 @@ const faqQuestions = [
   '예비후보자가 할 수 있는 홍보활동은?',
   '선거 관련 집회를 개최할 수 있나요?',
 ]
-
-const ReformLogo = require('../assets/reform-party-logo.png')
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user'
@@ -84,7 +81,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       </View>
       {!isUser && (
         <View style={styles.botInfoRow}>
-          <Image source={ReformLogo} style={styles.botLogo} resizeMode="contain" />
+          <ReformSymbolLogo size={20} />
           <Text style={styles.messageTime}>{time}</Text>
         </View>
       )}
@@ -381,6 +378,8 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     fontSize: fontSize.md,
     color: colors.neutral[800],
+    paddingVertical: spacing.sm,
+    textAlignVertical: 'center',
   },
   sendButton: {
     paddingHorizontal: spacing.md,
