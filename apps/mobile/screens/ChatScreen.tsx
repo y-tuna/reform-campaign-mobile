@@ -36,6 +36,7 @@ const faqQuestions = [
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user'
+  const [isDetailExpanded, setIsDetailExpanded] = useState(false)
   const time = new Date(message.createdAt).toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -68,12 +69,28 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             <View style={styles.sourcesContainer}>
               <Text style={styles.sourcesLabel}>관련 조항:</Text>
               {message.sources.map((source, index) => (
-                <TouchableOpacity key={index} style={styles.sourceLink}>
+                <View key={index} style={styles.sourceLink}>
                   <Text style={styles.sourceLinkText}>• {source.code}</Text>
-                </TouchableOpacity>
+                </View>
               ))}
-              <TouchableOpacity style={styles.detailButton}>
-                <Text style={styles.detailButtonText}>자세히 보기</Text>
+              {isDetailExpanded && (
+                <View style={styles.detailContent}>
+                  {message.sources.map((source, index) => (
+                    <View key={index} style={styles.detailItem}>
+                      <Text style={styles.detailCode}>{source.code}</Text>
+                      <Text style={styles.detailTitle}>{source.title}</Text>
+                      <Text style={styles.detailSummary}>{source.summary}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.detailButton}
+                onPress={() => setIsDetailExpanded(!isDetailExpanded)}
+              >
+                <Text style={styles.detailButtonText}>
+                  {isDetailExpanded ? '접기' : '자세히 보기'}
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -146,8 +163,8 @@ export default function ChatScreen() {
         sources: [
           {
             code: '공직선거법 제112조',
-            title: '명함 배부',
-            summary: '예비후보자 명함 배부 규정',
+            title: '기부행위의 정의 등',
+            summary: '① 예비후보자 또는 그의 배우자와 직계존비속이나 형제자매, 선거사무장, 선거연락소장은 예비후보자의 명함(성명·사진·전화번호·학력·경력, 그 밖에 홍보에 필요한 사항을 게재한 것으로서 길이 9센티미터 너비 5센티미터 이내의 것을 말한다)을 직접 주거지 방문 등의 방법으로 선거구민에게 배부할 수 있다.',
           },
         ],
         createdAt: new Date().toISOString(),
@@ -304,6 +321,34 @@ const styles = StyleSheet.create({
   sourceLinkText: {
     fontSize: fontSize.sm,
     color: colors.primary[500],
+  },
+  detailContent: {
+    marginTop: spacing.sm,
+  },
+  detailItem: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.xs,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary[500],
+  },
+  detailCode: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.primary[600],
+    marginBottom: 2,
+  },
+  detailTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.neutral[700],
+    marginBottom: spacing.xs,
+  },
+  detailSummary: {
+    fontSize: fontSize.sm,
+    color: colors.neutral[600],
+    lineHeight: 20,
   },
   detailButton: {
     marginTop: spacing.sm,
