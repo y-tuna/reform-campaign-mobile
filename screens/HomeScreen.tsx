@@ -38,14 +38,6 @@ import {
   ClockIcon,
 } from '../components/icons'
 
-// 색상 옵션
-const colorOptions = [
-  '#F87171', // red
-  '#60A5FA', // blue
-  '#FBBF24', // amber
-  '#818CF8', // indigo
-]
-
 // POI 카테고리 타입
 type POICategory = 'all' | 'transit' | 'school' | 'shop' | 'park' | 'culture' | 'religious' | 'public' | 'manual'
 type TimeCategory = 'all' | 'morning' | 'noon' | 'evening' | 'night'
@@ -243,15 +235,13 @@ function ScheduleCard({
 
   return (
     <TouchableOpacity
-      style={[styles.card, isManual && { flexDirection: 'row', padding: 0, overflow: 'hidden' }]}
+      style={[styles.card, { flexDirection: 'row', padding: 0, overflow: 'hidden' }]}
       activeOpacity={0.7}
       onPress={onPress}
     >
-      {/* 수동 일정 왼쪽 색상 바 */}
-      {isManual && (
-        <View style={{ width: 5, backgroundColor: schedule.color || '#6B7280', borderTopLeftRadius: borderRadius.lg, borderBottomLeftRadius: borderRadius.lg }} />
-      )}
-      <View style={isManual ? { flex: 1, padding: spacing.md } : { flex: 1 }}>
+      {/* 왼쪽 색상 바: 자동=오렌지, 수동=회색 */}
+      <View style={{ width: 5, backgroundColor: isManual ? '#6B7280' : colors.primary[500], borderTopLeftRadius: borderRadius.lg, borderBottomLeftRadius: borderRadius.lg }} />
+      <View style={{ flex: 1, padding: spacing.md }}>
       <View style={styles.cardHeader}>
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{schedule.startTime}</Text>
@@ -670,7 +660,6 @@ function AddScheduleModal({
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; address: string } | null>(null)
-  const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [memo, setMemo] = useState('')
   const [timePickerTarget, setTimePickerTarget] = useState<'start' | 'end' | null>(null)
 
@@ -686,7 +675,7 @@ function AddScheduleModal({
       startTime,
       endTime,
       location: selectedLocation,
-      color: selectedColor,
+      color: '#6B7280',
       memo: memo.trim(),
     })
     // Reset form
@@ -815,32 +804,6 @@ function AddScheduleModal({
               )}
             </View>
 
-            {/* 색상 */}
-            <View style={addModalStyles.fieldGroup}>
-              <Text style={addModalStyles.label}>색상 <Text style={addModalStyles.required}>*</Text></Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={addModalStyles.colorScroll}
-              >
-                {colorOptions.map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      addModalStyles.colorOption,
-                      { backgroundColor: color },
-                      selectedColor === color && addModalStyles.colorSelected,
-                    ]}
-                    onPress={() => setSelectedColor(color)}
-                  >
-                    {selectedColor === color && (
-                      <Text style={addModalStyles.checkmark}>✓</Text>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-
             {/* 메모 */}
             <View style={addModalStyles.fieldGroup}>
               <Text style={addModalStyles.label}>메모</Text>
@@ -887,7 +850,6 @@ function EditScheduleModal({
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('09:30')
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; address: string } | null>(null)
-  const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [memo, setMemo] = useState('')
   const [timePickerTarget, setTimePickerTarget] = useState<'start' | 'end' | null>(null)
 
@@ -899,7 +861,6 @@ function EditScheduleModal({
       setStartTime(schedule.startTime)
       setEndTime(schedule.endTime)
       setSelectedLocation(schedule.location)
-      setSelectedColor(schedule.color)
       setMemo(schedule.memo)
     }
   }, [schedule])
@@ -916,7 +877,7 @@ function EditScheduleModal({
       startTime,
       endTime,
       location: selectedLocation,
-      color: selectedColor,
+      color: '#6B7280',
       memo: memo.trim(),
     })
     onClose()
@@ -1040,32 +1001,6 @@ function EditScheduleModal({
                   <Text style={addModalStyles.chevron}>›</Text>
                 </TouchableOpacity>
               )}
-            </View>
-
-            {/* 색상 */}
-            <View style={addModalStyles.fieldGroup}>
-              <Text style={addModalStyles.label}>색상 <Text style={addModalStyles.required}>*</Text></Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={addModalStyles.colorScroll}
-              >
-                {colorOptions.map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      addModalStyles.colorOption,
-                      { backgroundColor: color },
-                      selectedColor === color && addModalStyles.colorSelected,
-                    ]}
-                    onPress={() => setSelectedColor(color)}
-                  >
-                    {selectedColor === color && (
-                      <Text style={addModalStyles.checkmark}>✓</Text>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
             </View>
 
             {/* 메모 */}
