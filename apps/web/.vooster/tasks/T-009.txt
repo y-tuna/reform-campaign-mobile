@@ -1,0 +1,29 @@
+# Promotional material template management
+
+**Task ID:** T-009
+**Status:** IN_PROGRESS
+**Importance:** SHOULD
+**Complexity:** 6/10
+**Urgency:** 6/10
+**Dependencies:** T-008
+
+## Description
+
+### Requirements
+- Show templates for banners, business cards, copy samples and order samples
+- Include regulation check guidelines and example resources
+
+### Implementation Details
+- Display template catalog using Ant Design Card Grid
+- Provide download links for sample files stored in public assets
+- Render regulation checklist in a collapsible panel
+
+### Test Strategy
+- Confirm templates load and download successfully
+- Verify guideline panel toggles visibility
+- Check grid layout responsiveness
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:24.126Z

@@ -1,0 +1,81 @@
+# 온보딩/프로필 정보 DB 연동 및 실시간 반영
+
+**Task ID:** T-014
+**Status:** BACKLOG
+**Importance:** MUST
+**Complexity:** 6/10
+**Urgency:** 9/10
+**Dependencies:** T-011, T-012
+
+## Description
+
+### 배경/목표
+- 온보딩/프로필 입력이 실제 DB와 양방향 동기화되며, 대시보드/상단/프로필 화면에 실시간 반영되도록 개선한다. 수정 즉시 UI에 반영되고, 다른 세션 변경도 리얼타임 구독으로 업데이트한다.
+
+### requirements
+- 프로필 스키마 연동: 이름, 연락처, intensity, religion_pref, mobility, font_scale 등 PRD 계약 키 반영.
+- 읽기/쓰기 API 연동: 프로필 조회/수정, 낙관적 업데이트 및 실패 롤백.
+- 실시간 반영: 프로필 레코드 변경 시 헤더 사용자 영역/대시보드 카드/프로필 페이지가 즉시 반영.
+- 검증/에러: 폼 유효성 검증(Zod), 서버 오류/권한 오류 시 사용자 피드백(Toast/Pill).
+- 접근성: 폼 필드 라벨/에러 설명, 키보드 내비게이션.
+
+### implementation details
+- 데이터 계층: Supabase(Postgres) 권장 경로로 우선 연동(`@supabase/supabase-js`), RLS/RBAC는 기존 정책 준수. 필요 시 OpenAPI SDK 타입을 함께 사용하여 타입 일치 보장.
+- 프로필 구독: Supabase Realtime로 `profiles` 테이블 사용자 행 구독, 변경 이벤트에 따라 로컬 캐시 갱신.
+- Next.js App Router: 프로필 페이지는 클라이언트 컴포넌트 폼 + 서버 액션/라우트 핸들러로 저장.
+- 상태 관리: 경량 캐시(SWR)로 조회/갱신, 낙관적 업데이트와 실패 시 롤백/토스트.
+- UI: 헤더 우측 사용자 요약에 이름/역할/강도 배지, 변경 시 즉시 재렌더.
+- 보안: 입력값 서버측 재검증, 전화번호 마스킹 표시, 민감 값은 서버에서만 가공.
+
+### pseudo-code
+```ts
+// profile.types.ts
+import { z } from 'zod';
+export const ProfileSchema = z.object({
+  id: z.string(), name: z.string().min(1), phone: z.string().min(8),
+  intensity: z.enum(['hard','normal','light']),
+  religion_pref: z.string(), mobility: z.enum(['car','pickup','trike','bike','walk']),
+  font_scale: z.enum(['default','large'])
+});
+```
+```ts
+// data/profile.ts
+import { createClient } from '@supabase/supabase-js';
+const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON!);
+export async function getProfile(uid: string) {
+  const { data, error } = await sb.from('profiles').select('*').eq('id', uid).single();
+  if (error) throw error; return data;
+}
+export async function updateProfile(uid: string, patch: any) {
+  const { data, error } = await sb.from('profiles').update(patch).eq('id', uid).select().single();
+  if (error) throw error; return data;
+}
+export function subscribeProfile(uid: string, onChange: (row: any) => void) {
+  return sb.channel('profiles:' + uid)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: 'id=eq.' + uid }, (payload) => onChange(payload.new))
+    .subscribe();
+}
+```
+```tsx
+// ProfileForm.tsx (요지)
+const { data, mutate } = useSWR(['profile', uid], () => getProfile(uid));
+const onSubmit = async (values) => {
+  const prev = data;
+  mutate({ ...data, ...values }, { revalidate: false });
+  try { await updateProfile(uid, values); toast.success('저장됨'); }
+  catch(e){ mutate(prev, { revalidate: false }); toast.error('저장 실패'); }
+};
+useEffect(() => { const sub = subscribeProfile(uid, (row) => mutate(row, { revalidate: false })); return () => { sb.removeChannel(sub); }; }, [uid]);
+```
+
+### 테스트 전략
+- 단위: 스키마 검증(Zod), 폼 유효성/에러 메시지, 업데이트 성공/실패 토스트.
+- 통합: Supabase 목킹으로 조회/업데이트/구독 이벤트 시나리오, 낙관적 업데이트 롤백 검증.
+- E2E: 프로필 수정 → 헤더/대시보드 실시간 반영 확인(다중 탭 시나리오 포함).
+- 접근성: 폼 라벨/aria-describedby, 키보드 제출, 오류 읽어주기 확인.
+- 수용 기준: 저장 성공 시 1초 내 헤더/프로필/대시보드 반영, 실패 시 원복과 오류 알림, 계약 키 일치 유지.
+
+---
+
+**Created:** 2025-09-08T20:02:54.645Z
+**Updated:** 2025-09-08T20:02:54.645Z

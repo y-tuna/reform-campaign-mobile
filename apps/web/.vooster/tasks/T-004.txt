@@ -1,0 +1,29 @@
+# Candidate onboarding and dashboard UI
+
+**Task ID:** T-004
+**Status:** DONE
+**Importance:** MUST
+**Complexity:** 7/10
+**Urgency:** 9/10
+**Dependencies:** T-003
+
+## Description
+
+### Requirements
+- Create profile onboarding form for basic info and settings
+- Display today’s tasks, activity and finance summary, monthly ranking
+
+### Implementation Details
+- Use Ant Design Form and Card components for UI
+- Fetch data with React Query and manage UI state with Zustand
+- Layout dashboard using responsive Grid and Tabs
+
+### Test Strategy
+- Verify onboarding form validation and submission
+- Mock data to confirm dashboard charts and summaries render correctly
+- Test responsiveness across viewport sizes
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T05:32:10.146Z

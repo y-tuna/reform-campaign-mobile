@@ -1,0 +1,29 @@
+# Policy, election law and FAQ viewer
+
+**Task ID:** T-007
+**Status:** IN_PROGRESS
+**Importance:** MUST
+**Complexity:** 5/10
+**Urgency:** 7/10
+**Dependencies:** T-006
+
+## Description
+
+### Requirements
+- List and categorize policies, laws, FAQs, and case studies
+- Provide search and filtering capabilities
+
+### Implementation Details
+- Use Ant Design Collapse and Table components for content display
+- Implement search input with debounced filtering
+- Render content in markdown using react-markdown library
+
+### Test Strategy
+- Populate mock policy data and verify category grouping
+- Test search input filters results accurately
+- Confirm markdown content renders headings, lists, and links
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:27.923Z

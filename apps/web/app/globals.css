@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 공통 spacing/rounding 토큰 */
+    --radius: 0.5rem;
+
+    /* 라이트 모드 기본 배경/텍스트 */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* 경계선/입력/포커스 링 */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 21 90% 52%; /* primary 주황 기반 */
+
+    /* 서브 계층 (카드, 섹션 등) */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* 개혁신당 주황 (primary) */
+    /* 대략 F97316 근처 HSL 값 */
+    --primary: 21 90% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    /* 서브/악센트 색 (살짝 회색/연한 강조용) */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --accent: 24 90% 96%;
+    --accent-foreground: 24 90% 30%;
+
+    /* 상태 색들 */
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 15%;
+
+    --success: 142 72% 35%;
+    --success-foreground: 0 0% 98%;
+
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 98%;
+  }
+
+  /* 다크 모드: html/body에 .dark 붙었을 때 */
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 21 90% 60%; /* 어두운 배경에서 조금 더 밝게 */
+
+    --primary: 21 90% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 24 70% 20%;
+    --accent-foreground: 24 100% 96%;
+
+    --danger: 0 72% 55%;
+    --danger-foreground: 0 0% 98%;
+
+    --warning: 38 92% 60%;
+    --warning-foreground: 0 0% 10%;
+
+    --success: 142 72% 40%;
+    --success-foreground: 0 0% 98%;
+
+    --info: 217 91% 65%;
+    --info-foreground: 0 0% 98%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom utility classes for the campaign manager */
+.page-container {
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+}
+
+.content-container {
+  padding: 1.5rem;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  border: 1px solid hsl(var(--border));
+}
+
+/* Override Ant Design styles to use design tokens */
+.ant-layout {
+  min-height: 100vh;
+  background-color: hsl(var(--background)) !important;
+}
+
+.ant-layout-header {
+  background: hsl(var(--card)) !important;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.ant-layout-content {
+  background-color: hsl(var(--background)) !important;
+}
+
+.ant-card {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.ant-card-head-title {
+  color: hsl(var(--foreground)) !important;
+}
+
+.ant-card-body {
+  color: hsl(var(--foreground)) !important;
+}
+
+.ant-btn-primary {
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: hsl(var(--primary) / 0.9) !important;
+  border-color: hsl(var(--primary) / 0.9) !important;
+}
+
+.ant-typography {
+  color: hsl(var(--foreground)) !important;
+}
+
+.ant-typography.ant-typography-secondary {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Tag colors using design tokens */
+.ant-tag-blue {
+  background-color: hsl(var(--info) / 0.1) !important;
+  border-color: hsl(var(--info) / 0.3) !important;
+  color: hsl(var(--info)) !important;
+}
+
+.ant-tag-green {
+  background-color: hsl(var(--success) / 0.1) !important;
+  border-color: hsl(var(--success) / 0.3) !important;
+  color: hsl(var(--success)) !important;
+}
+
+.ant-tag-orange {
+  background-color: hsl(var(--warning) / 0.1) !important;
+  border-color: hsl(var(--warning) / 0.3) !important;
+  color: hsl(var(--warning)) !important;
+}
+
+.ant-tag-red {
+  background-color: hsl(var(--danger) / 0.1) !important;
+  border-color: hsl(var(--danger) / 0.3) !important;
+  color: hsl(var(--danger)) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 1rem;
+  }
+}

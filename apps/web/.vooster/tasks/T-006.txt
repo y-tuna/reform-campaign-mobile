@@ -1,0 +1,29 @@
+# Proof upload wizard and status checking
+
+**Task ID:** T-006
+**Status:** IN_PROGRESS
+**Importance:** MUST
+**Complexity:** 7/10
+**Urgency:** 8/10
+**Dependencies:** T-005
+
+## Description
+
+### Requirements
+- Enable photo/receipt uploads with GPS and timestamp metadata capture
+- Display proof status: pending, on hold, completed
+
+### Implementation Details
+- Use HTML5 Geolocation API to capture GPS and Date API for timestamp
+- Integrate file input with preview and metadata tagging
+- Render status badges using Ant Design Badge component
+
+### Test Strategy
+- Test metadata collection by mocking geolocation and checking metadata fields
+- Upload sample files and verify status transitions
+- Confirm UI updates on status change from mock API
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:29.393Z

@@ -1,0 +1,29 @@
+# DB schema design and initialization
+
+**Task ID:** T-002
+**Status:** DONE
+**Importance:** MUST
+**Complexity:** 6/10
+**Urgency:** 9/10
+**Dependencies:** T-001
+
+## Description
+
+### Requirements
+- Define tables for candidates, submission documents, proofs, education content, policies/FAQ, broadcasts
+- Seed database with test and mock data
+
+### Implementation Details
+- Use Flyway migrations for PostgreSQL schema versioning
+- Create SQL scripts for tables and relationships in /infra/scripts
+- Implement seed scripts for mock data insertion
+
+### Test Strategy
+- Run migrations locally and verify table creation
+- Execute seed scripts and confirm mock data presence
+- Validate foreign key constraints and data integrity
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-07T19:52:14.115Z

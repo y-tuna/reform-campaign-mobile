@@ -1,0 +1,86 @@
+# 주요 데이터 뷰(대시보드·테이블·상세 Drawer) 집중 UI 리디자인
+
+**Task ID:** T-013
+**Status:** BACKLOG
+**Importance:** MUST
+**Complexity:** 7/10
+**Urgency:** 9/10
+**Dependencies:** T-011, T-012
+
+## Description
+
+### 배경/목표
+- 대시보드, 테이블, 상세 Drawer 및 승인/반려 플로우를 데이터 가독성·작업 효율 중심으로 재설계한다. 상태 Pill, Zebra Row, Sticky Header, Bulk Action 등 프로페셔널 데이터 뷰를 구현한다.
+
+### requirements
+- 대시보드: 핵심 KPI 카드(후보 수, 승인 대기 증빙, 금일 공지, 월 승인 TAT 등), 최근 활동 리스트, 경고/중요 알림 위계 표현.
+- 테이블: 후보자/증빙/서류 공통 테이블 패턴(컬럼 정렬/필터/검색, Zebra Row, Sticky Header, 고정 열, 서버 페이지네이션).
+- Bulk Action: 다중 선택 후 승인/반려/라벨 변경 등 일괄 처리 바.
+- 상세 Drawer: 후보/증빙/서류 상세 정보, 메타(시간, 위치, 해시, 상태 이력), 승인/반려 액션과 사유 입력.
+- 상태 Pill: Proof.review, Document.status, Broadcast.severity를 토큰 기반 색상/아이콘으로 일관 표기.
+- 빈 상태/로딩: EmptyState/Skeleton 제공.
+- 접근성: 헤더-행 포커스 이동, 체크박스 선택 상태 SR 라벨, 키보드만으로 Bulk Action 가능.
+
+### implementation details
+- 테이블 엔진: TanStack Table v8 도입(정렬/필터/가상화 옵션), 디자인 토큰 유틸 클래스로 스타일 통일.
+- 서버 데이터: 기존 API/DB 계약 준수, 서버 페이지네이션/소팅 파라미터 매핑.
+- Sticky Header: 상단 필터 바와 시각 충돌 방지, 그림자/경계선 토큰 사용.
+- Bulk Action 바: 선택 수, 액션 버튼, 진행 중 스피너, 완료 후 Toast.
+- 상세 Drawer: Radix Dialog/Sheet, 우측 고정 폭, 콘텐츠 스크롤 분리, 퀵 액션 배치(승인/반려).
+- 상태 Pill 매핑 테이블을 공통 유틸로 분리하여 모든 뷰에서 재사용.
+
+### pseudo-code
+```tsx
+// columns.ts
+export const proofColumns = [
+  { id: 'select', header: SelectAll, cell: RowCheckbox },
+  { accessorKey: 'id', header: 'ID' },
+  { accessorKey: 'kind', header: '종류' },
+  { accessorKey: 'taken_at', header: '촬영시간' },
+  { accessorKey: 'gps', header: '위치' },
+  { accessorKey: 'review_status', header: '상태', cell: ({ getValue }) => <Pill kind={mapReview(getValue())} /> }
+];
+```
+```tsx
+// BulkBar.tsx
+export function BulkBar({ count, onApprove, onReject }) {
+  if (!count) return null;
+  return (
+    <div className='fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-surface shadow-2 px-4 py-2'>
+      <span className='mr-3'>{count} 선택됨</span>
+      <Button variant='primary' onClick={onApprove}>일괄 승인</Button>
+      <Button variant='ghost' onClick={onReject}>일괄 반려</Button>
+    </div>
+  );
+}
+```
+```tsx
+// DetailDrawer.tsx
+export function DetailDrawer({ open, onOpenChange, record }) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side='right' className='w-[520px]'>
+        <Header title='상세' subtitle={record.id} />
+        <Section title='메타'>/* taken_at, gps, hash, uploader */</Section>
+        <Section title='상태 이력'>/* timeline */</Section>
+        <Footer>
+          <Button variant='primary'>승인</Button>
+          <Button variant='ghost'>반려</Button>
+        </Footer>
+      </SheetContent>
+    </Sheet>
+  );
+}
+```
+
+### 테스트 전략
+- 단위: 테이블 정렬/필터/선택 상태, Pill 렌더 매핑, Drawer 열림/닫힘/액션 이벤트.
+- 통합: 서버 페이지네이션 파라미터 연동, Bulk Action 성공/실패 토스트, 상태 업데이트 반영.
+- E2E: 승인/반려 플로우(사유 입력 포함), Sticky Header 스크롤 유지, 다중 선택/해제 조작.
+- 접근성: 테이블 헤더/셀 SR 라벨, 포커스 이동 시각 피드백, Drawer 포커스 트랩.
+- 수용 기준: 데이터 가독성 향상, 핵심 액션(승인/반려/일괄처리) 3클릭 이내 완료, 상태 컬러 토큰 일관 적용.
+
+---
+
+**Created:** 2025-09-08T20:02:54.645Z
+**Updated:** 2025-09-08T20:02:54.645Z

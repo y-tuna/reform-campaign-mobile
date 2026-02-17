@@ -1,0 +1,29 @@
+# Candidate education page with guides and videos
+
+**Task ID:** T-008
+**Status:** IN_PROGRESS
+**Importance:** MUST
+**Complexity:** 6/10
+**Urgency:** 8/10
+**Dependencies:** T-007
+
+## Description
+
+### Requirements
+- Display guidebooks, behavioral and manners guides, situational tutorials
+- Embed video content for training scenarios
+
+### Implementation Details
+- Use Ant Design Tabs and Card components for content organization
+- Integrate react-player for video playback
+- Load content metadata from mock JSON files
+
+### Test Strategy
+- Verify guidebook text and layout render correctly
+- Test video playback controls and responsiveness
+- Validate tab navigation and content loading
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:26.249Z

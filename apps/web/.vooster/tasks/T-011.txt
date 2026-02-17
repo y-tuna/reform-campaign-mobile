@@ -1,0 +1,98 @@
+# 핵심 디자인 시스템 및 공통 컴포넌트 리빌딩
+
+**Task ID:** T-011
+**Status:** BACKLOG
+**Importance:** MUST
+**Complexity:** 8/10
+**Urgency:** 10/10
+**Dependencies:** None
+
+## Description
+
+### 배경/목표
+- 웹 관리자 콘솔 전반을 시크하고 프로페셔널한 톤으로 재정의하고, 컬러/폰트/간격/컴포넌트가 일관된 디자인 시스템으로 동작하도록 리빌딩한다.
+- PRD의 'Cool-neutral, Navy/Blue, 시크&미니멀, Accent 최소' 원칙을 디자인 토큰으로 제도화한다.
+
+### requirements
+- 디자인 토큰 패키지화: 컬러 팔레트(Neutral/Navy 중심), 폰트 스케일, 간격/레이아웃 스케일, 라운딩, 그림자, z-index, 상태 색상(성공/경고/위험/정보), 상태 Pill 토큰 정의.
+- 타이포그래피 시스템: 한글/영문 가독성 우선(예: Pretendard Variable, 시스템 폴백), 헤딩/본문/캡션 스케일 및 라인하이트 정의.
+- 반응형 그리드/레이아웃 토큰: 모바일/태블릿/데스크톱 브레이크포인트 및 컨테이너 폭 정의.
+- 접근성: 명도 대비 기준 충족(AA+), 포커스 링, 키보드 내비게이션 기본 제공.
+- 핵심 공통 컴포넌트 리뉴얼: Button/IconButton, Link, Input/Select/Checkbox/Radio/Toggle, TextArea, Tooltip, Modal/Drawer/Sheet, Card, Table, Pill/Badge, Toast, Tabs, Breadcrumbs, Pagination, EmptyState, Skeleton, Progress, Toolbar/FilterBar.
+- 테마 적용 기준: 상태 컬러/피드백/상태 Pill은 토큰만 참조하도록 리팩터.
+- 문서화: 각 컴포넌트 사용 가이드/Props 규칙, 접근성 체크리스트.
+
+### implementation details
+- 모노레포 공통 패키지(`/packages/design-tokens`, `/packages/ui`) 구성.
+- CSS Variables 기반 토큰 정의(:root, data-attr로 상태 분기), Next.js App Router와 호환.
+- Radix UI Primitives로 접근성 토대 구축, Tailwind CSS를 토큰 참조 프리셋으로 구성(유틸리티 클래스 표준화).
+- Storybook을 통해 컴포넌트 문서/시각 회귀를 병행, 토큰 변경 시 영향 범위 시각화.
+- 컬러 시스템: 중립 회색(Neutral 50~950), Navy/Blue 계열 프라이머리(예: Navy 700/800, Blue 500/600), 상태 컬러(Info/Warn/Critical, Success) 정의.
+- 상태 Pill 맵핑: Proof.review, Broadcast.severity 등 데이터 계약에 맞춰 Pill 색상/아이콘만 토큰 참조로 매핑.
+- 반응형: 컨테이너/그리드 토큰, `md`, `lg`, `xl` 브레이크포인트 정의.
+- 아이콘: Lucide 또는 Heroicons 채택, 사이즈/스트로크 굵기 토큰화.
+- 빌드/품질: ESLint/Prettier 규칙, a11y 린트, Chromatic(옵션)으로 비주얼 리그레션.
+
+### pseudo-code
+```css
+:root {
+  --color-bg: #0b1220; /* cool navy background */
+  --color-surface: #0f172a;
+  --color-text: #e5e7eb;
+  --color-muted: #94a3b8;
+  --color-primary: #1e40af; /* navy/blue */
+  --color-primary-contrast: #f8fafc;
+  --color-success: #10b981;
+  --color-warn: #f59e0b;
+  --color-critical: #ef4444;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.3); --shadow-2: 0 4px 12px rgba(0,0,0,.35);
+}
+```
+```ts
+// tailwind.config.ts (토큰 바인딩 예시)
+theme: {
+  colors: {
+    bg: 'var(--color-bg)', surface: 'var(--color-surface)',
+    text: 'var(--color-text)', muted: 'var(--color-muted)',
+    primary: 'var(--color-primary)', success: 'var(--color-success)', warn: 'var(--color-warn)', critical: 'var(--color-critical)'
+  },
+  borderRadius: { sm: 'var(--radius-sm)', md: 'var(--radius-md)', lg: 'var(--radius-lg)' }
+}
+```
+```tsx
+// Button.tsx
+export function Button({ variant = 'primary', size = 'md', ...props }) {
+  const base = 'inline-flex items-center justify-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+  const v = {
+    primary: 'bg-primary text-[var(--color-primary-contrast)] hover:opacity-90',
+    ghost: 'bg-transparent text-text hover:bg-[rgba(255,255,255,.06)]',
+    danger: 'bg-critical text-white hover:opacity-90'
+  }[variant];
+  const s = { sm: 'h-8 px-3 text-sm', md: 'h-9 px-4', lg: 'h-11 px-5 text-base' }[size];
+  return <button className={[base, v, s].join(' ')} {...props} />;
+}
+```
+```tsx
+// Pill.tsx (데이터 계약 맵핑)
+const map = {
+  info: 'bg-[rgba(59,130,246,.15)] text-[#93c5fd]',
+  warn: 'bg-[rgba(245,158,11,.15)] text-[#fbbf24]',
+  critical: 'bg-[rgba(239,68,68,.15)] text-[#fca5a5]',
+  approved: 'bg-[rgba(16,185,129,.15)] text-[#86efac]'
+};
+export function Pill({ kind, children }) { return <span className={'px-2 py-0.5 rounded-full ' + (map[kind]||'')}>{children}</span>; }
+```
+
+### 테스트 전략
+- 단위 테스트: 각 컴포넌트 렌더/상태/이벤트 핸들(React Testing Library), a11y(aXe) 검사.
+- 스토리북 시각 회귀: 핵심 컴포넌트 스냅샷/비주얼 비교, 토큰 변경 시 회귀 감지.
+- 접근성: 키보드 트래버설, 포커스 트랩(Modal/Drawer), 명도 대비 자동 검사.
+- 성능: Lighthouse/Next 분석, CSS 사용량 트리쉐이킹 검증.
+- 수용 기준: 디자인 가이드와 1:1 시각 일치, 토큰 기반 재사용 100%, 상태색/피드백 Pill 토큰만으로 제어.
+
+---
+
+**Created:** 2025-09-08T20:02:54.645Z
+**Updated:** 2025-09-08T20:02:54.645Z

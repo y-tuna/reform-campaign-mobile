@@ -1,0 +1,146 @@
+{
+  "totalCount": 14,
+  "downloadedAt": "2025-09-08T20:06:56.435Z",
+  "tasks": [
+    {
+      "taskId": "T-001",
+      "summary": "Next.js project setup & Vercel deployment pipeline",
+      "status": "DONE",
+      "importance": "MUST",
+      "complexity": 3,
+      "urgency": 10,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-07T19:52:12.093Z"
+    },
+    {
+      "taskId": "T-002",
+      "summary": "DB schema design and initialization",
+      "status": "DONE",
+      "importance": "MUST",
+      "complexity": 6,
+      "urgency": 9,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-07T19:52:14.115Z"
+    },
+    {
+      "taskId": "T-003",
+      "summary": "Role-based authentication and authorization (RBAC)",
+      "status": "DONE",
+      "importance": "MUST",
+      "complexity": 6,
+      "urgency": 8,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-07T20:08:17.515Z"
+    },
+    {
+      "taskId": "T-004",
+      "summary": "Candidate onboarding and dashboard UI",
+      "status": "DONE",
+      "importance": "MUST",
+      "complexity": 7,
+      "urgency": 9,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T05:32:10.146Z"
+    },
+    {
+      "taskId": "T-005",
+      "summary": "Submission documents and guide UI",
+      "status": "IN_PROGRESS",
+      "importance": "MUST",
+      "complexity": 7,
+      "urgency": 9,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:31.137Z"
+    },
+    {
+      "taskId": "T-006",
+      "summary": "Proof upload wizard and status checking",
+      "status": "IN_PROGRESS",
+      "importance": "MUST",
+      "complexity": 7,
+      "urgency": 8,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:29.393Z"
+    },
+    {
+      "taskId": "T-007",
+      "summary": "Policy, election law and FAQ viewer",
+      "status": "IN_PROGRESS",
+      "importance": "MUST",
+      "complexity": 5,
+      "urgency": 7,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:27.923Z"
+    },
+    {
+      "taskId": "T-008",
+      "summary": "Candidate education page with guides and videos",
+      "status": "IN_PROGRESS",
+      "importance": "MUST",
+      "complexity": 6,
+      "urgency": 8,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:26.249Z"
+    },
+    {
+      "taskId": "T-009",
+      "summary": "Promotional material template management",
+      "status": "IN_PROGRESS",
+      "importance": "SHOULD",
+      "complexity": 6,
+      "urgency": 6,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:24.126Z"
+    },
+    {
+      "taskId": "T-010",
+      "summary": "Broadcast and notice list UI",
+      "status": "IN_PROGRESS",
+      "importance": "SHOULD",
+      "complexity": 5,
+      "urgency": 7,
+      "createdAt": "2025-09-07T18:23:39.642Z",
+      "updatedAt": "2025-09-08T18:45:22.292Z"
+    },
+    {
+      "taskId": "T-011",
+      "summary": "핵심 디자인 시스템 및 공통 컴포넌트 리빌딩",
+      "status": "BACKLOG",
+      "importance": "MUST",
+      "complexity": 8,
+      "urgency": 10,
+      "createdAt": "2025-09-08T20:02:54.645Z",
+      "updatedAt": "2025-09-08T20:02:54.645Z"
+    },
+    {
+      "taskId": "T-012",
+      "summary": "메인 내비게이션 및 레이아웃(IA) 재설계",
+      "status": "BACKLOG",
+      "importance": "MUST",
+      "complexity": 8,
+      "urgency": 9,
+      "createdAt": "2025-09-08T20:02:54.645Z",
+      "updatedAt": "2025-09-08T20:02:54.645Z"
+    },
+    {
+      "taskId": "T-013",
+      "summary": "주요 데이터 뷰(대시보드·테이블·상세 Drawer) 집중 UI 리디자인",
+      "status": "BACKLOG",
+      "importance": "MUST",
+      "complexity": 7,
+      "urgency": 9,
+      "createdAt": "2025-09-08T20:02:54.645Z",
+      "updatedAt": "2025-09-08T20:02:54.645Z"
+    },
+    {
+      "taskId": "T-014",
+      "summary": "온보딩/프로필 정보 DB 연동 및 실시간 반영",
+      "status": "BACKLOG",
+      "importance": "MUST",
+      "complexity": 6,
+      "urgency": 9,
+      "createdAt": "2025-09-08T20:02:54.645Z",
+      "updatedAt": "2025-09-08T20:02:54.645Z"
+    }
+  ]
+}

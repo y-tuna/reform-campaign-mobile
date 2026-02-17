@@ -1,0 +1,29 @@
+# Broadcast and notice list UI
+
+**Task ID:** T-010
+**Status:** IN_PROGRESS
+**Importance:** SHOULD
+**Complexity:** 5/10
+**Urgency:** 7/10
+**Dependencies:** T-009
+
+## Description
+
+### Requirements
+- Display central party broadcasts with severity ribbons and timestamps
+- Allow users to view broadcast details in a modal or separate page
+
+### Implementation Details
+- Use Ant Design List and Badge for severity indication
+- Implement detail modal using Ant Design Modal component
+- Fetch broadcast items via mock API and map severity to color codes
+
+### Test Strategy
+- Populate mock broadcasts and verify list rendering
+- Test severity badge colors for info, warning, critical
+- Open detail view and confirm full content display
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:22.292Z

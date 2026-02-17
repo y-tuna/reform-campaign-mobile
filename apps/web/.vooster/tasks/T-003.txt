@@ -1,0 +1,29 @@
+# Role-based authentication and authorization (RBAC)
+
+**Task ID:** T-003
+**Status:** DONE
+**Importance:** MUST
+**Complexity:** 6/10
+**Urgency:** 8/10
+**Dependencies:** T-002
+
+## Description
+
+### Requirements
+- Implement login and role-based access for candidate, admin, viewer
+- Protect routes and UI elements based on user roles
+
+### Implementation Details
+- Use NextAuth.js with JWT provider for authentication
+- Define role-based middleware in Next.js for route guarding
+- Store role in session and conditionally render UI components
+
+### Test Strategy
+- Attempt access to protected pages as each role and verify redirection
+- Validate UI elements hide/show according to role
+- Test login flow and JWT session persistence
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-07T20:08:17.515Z

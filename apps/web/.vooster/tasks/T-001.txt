@@ -1,0 +1,29 @@
+# Next.js project setup & Vercel deployment pipeline
+
+**Task ID:** T-001
+**Status:** DONE
+**Importance:** MUST
+**Complexity:** 3/10
+**Urgency:** 10/10
+**Dependencies:** None
+
+## Description
+
+### Requirements
+- Initialize Next.js project
+- Integrate with Vercel for preview and production deployments
+
+### Implementation Details
+- Use Next.js 13 with TypeScript template
+- Configure Vercel Git integration with Preview and Production branches
+- Manage environment variables via Vercel Secrets and NEXT_PUBLIC_* prefix
+
+### Test Strategy
+- Push code to feature branch and verify Preview URL is generated
+- Merge to main and confirm Production deployment
+- Validate environment variables load correctly in both environments
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-07T19:52:12.093Z

@@ -1,0 +1,81 @@
+# 메인 내비게이션 및 레이아웃(IA) 재설계
+
+**Task ID:** T-012
+**Status:** BACKLOG
+**Importance:** MUST
+**Complexity:** 8/10
+**Urgency:** 9/10
+**Dependencies:** T-011
+
+## Description
+
+### 배경/목표
+- 사이드바, 헤더, 필터 바, Drawer 등 IA를 새 디자인 시스템에 맞춰 전면 재구성하고 반응형(모바일/태블릿)까지 완비한다.
+
+### requirements
+- AppShell 구축: 고정 헤더, 좌측 사이드바, 콘텐츠 영역, 푸터(옵션).
+- 사이드바: 섹션/그룹 구분, 현재 위치 하이라이트, 툴팁, Collapsible(데스크톱), 모바일에서 Drawer 전환.
+- 헤더: 글로벌 검색(향후 확장), 브레드크럼, 공지 리본(Severity 색상 반영), 사용자 프로필 메뉴.
+- 필터 바: 목록 화면 상단에 고정 Sticky, 주요 필터/정렬/다운로드 액션 배치.
+- 반응형: md/lg/xl 브레이크포인트, 모바일에서 사이드바 숨김 및 햄버거 메뉴로 전환.
+- 접근성: aria-current, 란드마크(role='navigation' 등), 키보드 포커스 가능.
+
+### implementation details
+- Next.js App Router 기반 `app/(dashboard)/layout.tsx`에 AppShell 구성, 루트 레벨에서 디자인 토큰 주입.
+- 사이드바 상태(접힘/펼침)는 React Context+localStorage 동기화, 모바일는 Radix Sheet/Drawer로 전환.
+- 브레드크럼은 `usePathname()`로 경로 세그먼트 파싱하여 라벨 매핑 테이블로 렌더.
+- 공지 리본은 Broadcast.severity를 Pill/배경 색 토큰 맵핑으로 반영.
+- 필터 바는 Sticky + Backdrop Blur로 상단 고정, 콘텐츠 스크롤과 독립.
+- 성능/접근성: 레이지 로딩(아이콘/드로어), aria 속성/포커스 관리.
+
+### pseudo-code
+```tsx
+// app/(dashboard)/layout.tsx
+export default function Layout({ children }) {
+  return (
+    <div className='min-h-screen bg-bg text-text'>
+      <Header />
+      <div className='flex'>
+        <Sidebar />
+        <main className='flex-1'>{children}</main>
+      </div>
+    </div>
+  );
+}
+```
+```tsx
+// Sidebar.tsx
+export function Sidebar() {
+  const items = [
+    { href: '/dashboard', label: '대시보드', icon: 'Gauge' },
+    { href: '/candidates', label: '후보자', icon: 'Users' },
+    { href: '/proofs', label: '증빙', icon: 'Receipt' },
+    { href: '/documents', label: '서류', icon: 'FileText' },
+    { href: '/broadcasts', label: '공지', icon: 'Megaphone' }
+  ];
+  const pathname = usePathname();
+  return (<aside className='w-64 hidden md:block border-r border-[rgba(255,255,255,.06)]'>
+    <nav aria-label='Main'>
+      {items.map(it => <NavItem key={it.href} active={pathname.startsWith(it.href)} {...it} />)}
+    </nav>
+  </aside>);
+}
+```
+```tsx
+// FilterBar.tsx (Sticky)
+export function FilterBar({ children }) {
+  return <div className='sticky top-0 z-20 backdrop-blur border-b border-[rgba(255,255,255,.06)]'>{children}</div>;
+}
+```
+
+### 테스트 전략
+- E2E: 내비게이션 이동(사이드바/헤더 브레드크럼), 모바일 Drawer 토글, Sticky 필터 바 동작(Playwright).
+- 단위: 활성 메뉴 하이라이트, 접힘 상태 유지(localStorage), 브레드크럼 라벨 매핑.
+- 접근성: aria-current/role 검사, 키보드 포커스 이동 경로 확인.
+- 반응형 시각 회귀: 주요 브레이크포인트 스냅샷.
+- 수용 기준: 사이드바/헤더/필터바/Drawer가 새 토큰과 IA에 부합, 모바일 전환 시 레이아웃 파손 없음.
+
+---
+
+**Created:** 2025-09-08T20:02:54.645Z
+**Updated:** 2025-09-08T20:02:54.645Z

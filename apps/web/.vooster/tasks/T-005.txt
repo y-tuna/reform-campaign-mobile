@@ -1,0 +1,29 @@
+# Submission documents and guide UI
+
+**Task ID:** T-005
+**Status:** IN_PROGRESS
+**Importance:** MUST
+**Complexity:** 7/10
+**Urgency:** 9/10
+**Dependencies:** T-004
+
+## Description
+
+### Requirements
+- Show list of required documents and proofs with guide steps
+- Display submission status, progress, and provide upload/input forms
+
+### Implementation Details
+- Use Ant Design List and Steps components for status display
+- Implement forms with React Hook Form and Zod for validation
+- Integrate file upload UI with drag-and-drop feedback
+
+### Test Strategy
+- Ensure list renders with correct status indicators
+- Validate form field errors for missing inputs
+- Simulate file selection and verify form submits expected payload
+
+---
+
+**Created:** 2025-09-07T18:23:39.642Z
+**Updated:** 2025-09-08T18:45:31.137Z
