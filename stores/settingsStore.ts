@@ -75,7 +75,7 @@ export const useSettingsStore = create<SettingsState>()(
           message: '강남역 광장에서 오후 2시 유세가 예정되어 있습니다.',
           type: 'schedule',
           isRead: false,
-          createdAt: new Date().toISOString(),
+          createdAt: new Date(Date.now() - 900000).toISOString(), // 15분 전
         },
         {
           id: 'notif-2',
@@ -83,15 +83,15 @@ export const useSettingsStore = create<SettingsState>()(
           message: '앱이 새로운 버전으로 업데이트되었습니다.',
           type: 'system',
           isRead: false,
-          createdAt: new Date(Date.now() - 3600000).toISOString(),
+          createdAt: new Date(Date.now() - 3600000).toISOString(), // 1시간 전
         },
         {
           id: 'notif-3',
           title: '유세 위치 인증',
-          message: '강남역 3번출구 일정 인증 시간입니다. 위치 인증을 진행해주세요.',
+          message: '진행 중인 유세의 위치를 인증하고 대시보드에 기록을 수집하세요.',
           type: 'gps_verify',
           isRead: true,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          createdAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
         },
       ],
       unreadCount: 2,

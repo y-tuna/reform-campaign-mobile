@@ -146,14 +146,18 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>유세 선호 설정</Text>
 
-          <SettingRow label="종교 시설">
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() => setReligionModalVisible(true)}
-            >
-              <Text style={styles.dropdownText}>{selectedReligionLabel}</Text>
-              <Text style={styles.dropdownArrow}>▼</Text>
-            </TouchableOpacity>
+          <SettingRow label="스케줄 강도">
+            <View style={styles.optionGroup}>
+              {intensityOptions.map((option) => (
+                <OptionButton
+                  key={option.value}
+                  selected={intensity === option.value}
+                  onPress={() => setIntensity(option.value)}
+                >
+                  {option.label}
+                </OptionButton>
+              ))}
+            </View>
           </SettingRow>
 
           <SettingRow label="이동 수단">
@@ -181,18 +185,14 @@ export default function ProfileScreen() {
             </View>
           </SettingRow>
 
-          <SettingRow label="스케줄 강도">
-            <View style={styles.optionGroup}>
-              {intensityOptions.map((option) => (
-                <OptionButton
-                  key={option.value}
-                  selected={intensity === option.value}
-                  onPress={() => setIntensity(option.value)}
-                >
-                  {option.label}
-                </OptionButton>
-              ))}
-            </View>
+          <SettingRow label="종교 시설">
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setReligionModalVisible(true)}
+            >
+              <Text style={styles.dropdownText}>{selectedReligionLabel}</Text>
+              <Text style={styles.dropdownArrow}>▼</Text>
+            </TouchableOpacity>
           </SettingRow>
         </View>
 
