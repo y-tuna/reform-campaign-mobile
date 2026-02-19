@@ -252,6 +252,7 @@ export default function ProfileScreen() {
                 이 크기로 앱의 글씨가 표시됩니다
               </Text>
             </View>
+            {/* 큰 글씨 모드 경고 (추후 활성화 가능 - full-feature-v1 브랜치 참고)
             {largeFont && (
               <View style={styles.largeFontWarning}>
                 <Text style={styles.largeFontWarningText}>
@@ -259,6 +260,7 @@ export default function ProfileScreen() {
                 </Text>
               </View>
             )}
+            */}
           </View>
 
           <View style={styles.toggleRow}>

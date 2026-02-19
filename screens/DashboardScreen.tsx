@@ -564,9 +564,14 @@ export default function DashboardScreen() {
     })
   }, [visitRecords])
 
+  /* 카테고리 상세 바텀시트 (추후 활성화 가능)
   const handleCategoryPress = (category: CategoryInfo) => {
     setSelectedCategory(category)
     setModalVisible(true)
+  }
+  */
+  const handleCategoryPress = (_category: CategoryInfo) => {
+    // 바텀시트 비활성화 상태 - full-feature-v1 브랜치에서 원본 확인 가능
   }
 
   const closeModal = () => {
@@ -637,7 +642,7 @@ export default function DashboardScreen() {
         */}
       </ScrollView>
 
-      {/* 카테고리 상세 모달 */}
+      {/* 카테고리 상세 모달 (추후 활성화 가능 - full-feature-v1 브랜치 참고)
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -674,9 +679,9 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                   <View style={styles.modalStatItem}>
-                    <Text style={styles.modalStatLabel}>누적 시간</Text>
+                    <Text style={styles.modalStatLabel}>예상 접촉</Text>
                     <Text style={styles.modalStatValue}>
-                      {(poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.visits, 0) * 1.5).toFixed(1)}시간
+                      {poisByCategory[selectedCategory.key].reduce((acc, poi) => acc + poi.exposure, 0)}명
                     </Text>
                   </View>
                 </View>
@@ -691,7 +696,7 @@ export default function DashboardScreen() {
                       <View style={styles.poiInfo}>
                         <Text style={styles.poiName}>{item.name}</Text>
                         <Text style={styles.poiMeta}>
-                          방문 {item.visits}회 · {(item.visits * 1.5).toFixed(1)}시간
+                          방문 {item.visits}회 · 접촉 {item.exposure}명
                         </Text>
                       </View>
                     </View>
@@ -703,6 +708,7 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Modal>
+      */}
     </SafeAreaView>
   )
 }

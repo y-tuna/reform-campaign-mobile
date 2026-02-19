@@ -1173,10 +1173,11 @@ export default function HomeScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 큰 글씨 모드: 완전히 다른 UI 렌더링
+  /* 큰 글씨 모드 (추후 활성화 가능 - full-feature-v1 브랜치 참고)
   if (isLargeFontMode) {
     return <HomeScreenSenior />
   }
+  */
 
   const today = new Date()
   const dateString = today.toLocaleDateString('ko-KR', {
