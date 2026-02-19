@@ -262,21 +262,39 @@ function ScheduleCard({
               </Text>
             </View>
           ) : (
-            <View
-              style={[
-                styles.poiTypeBadge,
-                { backgroundColor: colors.poi[schedule.poi.type] + '20' },
-              ]}
-            >
-              <Text
+            <>
+              <View
                 style={[
-                  styles.poiTypeText,
-                  { color: colors.poi[schedule.poi.type] },
+                  styles.poiTypeBadge,
+                  { backgroundColor: colors.primary[500] + '15', flexDirection: 'row', alignItems: 'center', gap: 3 },
                 ]}
               >
-                {poiTypeLabel[schedule.poi.type]}
-              </Text>
-            </View>
+                <SparkleIcon size={11} color={colors.primary[500]} />
+                <Text
+                  style={[
+                    styles.poiTypeText,
+                    { color: colors.primary[500], fontWeight: '700' },
+                  ]}
+                >
+                  AI
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.poiTypeBadge,
+                  { backgroundColor: colors.poi[schedule.poi.type] + '20' },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.poiTypeText,
+                    { color: colors.poi[schedule.poi.type] },
+                  ]}
+                >
+                  {poiTypeLabel[schedule.poi.type]}
+                </Text>
+              </View>
+            </>
           )}
           <View
             style={[
