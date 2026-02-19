@@ -1149,9 +1149,17 @@ export default function HomeScreen() {
     return [...mockSchedules, ...aiGeneratedSchedules, ...convertedManualSchedules]
   }, [convertedManualSchedules, aiGeneratedSchedules])
 
-  // 알림 생성 (데모: 마운트 시 일정별 유세 알림 + GPS 인증 알림)
+  // 알림 생성 (데모: 마운트 시 일정별 유세 알림 + GPS 인증 알림 섞어서)
   useEffect(() => {
     mockSchedules.forEach(schedule => {
+      // GPS 인증 알림 3회
+      for (let i = 3; i >= 1; i--) {
+        addNotification({
+          title: '유세 위치 인증',
+          message: `${schedule.poi.name} 일정을 소화 중이신가요? 위치 인증을 진행해주세요. (${i}/3)`,
+          type: 'gps_verify',
+        })
+      }
       // 오늘 유세 일정 알림 (시작 30분 전 발송 시뮬레이션)
       const hour = parseInt(schedule.startTime.split(':')[0])
       const ampm = hour < 12 ? '오전' : '오후'
@@ -1161,14 +1169,6 @@ export default function HomeScreen() {
         message: `${schedule.poi.name}에서 ${ampm} ${displayHour}시 유세가 예정되어 있습니다.`,
         type: 'schedule',
       })
-      // GPS 인증 알림 (타임윈도우 중 3회)
-      for (let i = 0; i < 3; i++) {
-        addNotification({
-          title: '유세 위치 인증',
-          message: '진행 중인 유세의 위치를 인증하고 대시보드에 기록을 수집하세요.',
-          type: 'gps_verify',
-        })
-      }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

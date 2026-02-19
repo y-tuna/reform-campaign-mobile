@@ -88,7 +88,7 @@ export const useSettingsStore = create<SettingsState>()(
         {
           id: 'notif-3',
           title: '유세 위치 인증',
-          message: '진행 중인 유세의 위치를 인증하고 대시보드에 기록을 수집하세요.',
+          message: '강남역 3번출구 일정을 소화 중이신가요? 위치 인증을 진행해주세요. (1/3)',
           type: 'gps_verify',
           isRead: true,
           createdAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
